@@ -34,4 +34,4 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_HUB_ENABLE_HF_TRANSFER: 1
         run: |
-          python llm_perf/update_llm_perf_leaderboard.py
+          python src/update_llm_perf_leaderboard.py
