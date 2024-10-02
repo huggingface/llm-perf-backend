@@ -1,8 +1,8 @@
 from itertools import product
 from typing import Any, Dict, List
 
-from llm_perf.common.benchmark_runner import LLMPerfBenchmarkManager
-from llm_perf.common.utils import (
+from src.common.benchmark_runner import LLMPerfBenchmarkManager
+from src.common.utils import (
     CANONICAL_PRETRAINED_OPEN_LLM_LIST,
     GENERATE_KWARGS,
     INPUT_SHAPES,
