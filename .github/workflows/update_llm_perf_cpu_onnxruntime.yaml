@@ -49,6 +49,8 @@ jobs:
           run: |
             pip install packaging && pip install einops scipy optimum codecarbon
             pip install -U transformers huggingface_hub[hf_transfer]
-            pip install 'optimum-benchmarkp[onnxruntime] @ https://github.com/huggingface/optimum-benchmark.git'
+            pip install -e git+https://github.com/huggingface/optimum-benchmark.git#egg=optimum-benchmark[onnxruntime]
             pip install -e .
             python src/benchmark_runners/cpu/update_llm_perf_cpu_onnxruntime.py
+            
+
