@@ -5,6 +5,7 @@ import pandas as pd
 from huggingface_hub import create_repo, snapshot_download, upload_file
 from tqdm import tqdm
 
+from src.common.hardware_config import load_hardware_configs
 from optimum_benchmark import Benchmark
 
 REPO_TYPE = "dataset"
@@ -37,16 +38,17 @@ def update_perf_dfs():
     """
     Update the performance dataframes for all machines
     """
-    for machine in ["1xA10", "1xA100", "1xT4", "32vCPU-C7i"]:
-        for backend in ["pytorch"]:
-            for hardware in ["cuda", "cpu"]:
-                for subset in ["unquantized", "bnb", "awq", "gptq"]:
-                    try:
-                        gather_benchmarks(subset, machine, backend, hardware)
-                    except Exception:
-                        print(
-                            f"benchmark for subset: {subset}, machine: {machine}, backend: {backend}, hardware: {hardware} not found"
-                        )
+    hardware_configs = load_hardware_configs("llm_perf/hardware.yml")
+
+    for hardware_config in hardware_configs:
+        for subset in hardware_config.subsets:
+            for backend in hardware_config.backends:
+                try:
+                    gather_benchmarks(subset, hardware_config.machine, backend, hardware_config.hardware)
+                except Exception:
+                    print(
+                        f"benchmark for subset: {subset}, machine: {hardware_config.machine}, backend: {backend}, hardware: {hardware_config.hardware} not found"
+                    )
 
 
 scrapping_script = """
