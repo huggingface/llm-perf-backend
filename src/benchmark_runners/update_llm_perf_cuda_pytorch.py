@@ -2,7 +2,11 @@ from itertools import product
 from typing import Any, Dict, List
 
 from llm_perf.common.benchmark_runner import LLMPerfBenchmarkManager
-from llm_perf.common.utils import CANONICAL_PRETRAINED_OPEN_LLM_LIST, GENERATE_KWARGS, INPUT_SHAPES
+from llm_perf.common.utils import (
+    CANONICAL_PRETRAINED_OPEN_LLM_LIST,
+    GENERATE_KWARGS,
+    INPUT_SHAPES,
+)
 from optimum_benchmark import PyTorchConfig
 from optimum_benchmark.benchmark.config import BenchmarkConfig
 from optimum_benchmark.launchers.process.config import ProcessConfig
@@ -19,9 +23,15 @@ class CUDAPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
 
     def get_list_of_benchmarks_to_run(self) -> List[Dict[str, Any]]:
         return [
-            {"model": model, "attn_implementation": attn_impl, "weights_config": weights_cfg}
+            {
+                "model": model,
+                "attn_implementation": attn_impl,
+                "weights_config": weights_cfg,
+            }
             for model, attn_impl, weights_cfg in product(
-                CANONICAL_PRETRAINED_OPEN_LLM_LIST, self.attention_configs, self.weights_configs.keys()
+                CANONICAL_PRETRAINED_OPEN_LLM_LIST,
+                self.attention_configs,
+                self.weights_configs.keys(),
             )
         ]
 
@@ -82,26 +92,56 @@ class CUDAPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
     def _get_weights_configs(self, subset) -> Dict[str, Dict[str, Any]]:
         if subset == "unquantized":
             return {
-                "float32": {"torch_dtype": "float32", "quant_scheme": None, "quant_config": {}},
-                "float16": {"torch_dtype": "float16", "quant_scheme": None, "quant_config": {}},
-                "bfloat16": {"torch_dtype": "bfloat16", "quant_scheme": None, "quant_config": {}},
+                "float32": {
+                    "torch_dtype": "float32",
+                    "quant_scheme": None,
+                    "quant_config": {},
+                },
+                "float16": {
+                    "torch_dtype": "float16",
+                    "quant_scheme": None,
+                    "quant_config": {},
+                },
+                "bfloat16": {
+                    "torch_dtype": "bfloat16",
+                    "quant_scheme": None,
+                    "quant_config": {},
+                },
             }
         elif subset == "bnb":
             return {
-                "4bit-bnb": {"torch_dtype": "float16", "quant_scheme": "bnb", "quant_config": {"load_in_4bit": True}},
-                "8bit-bnb": {"torch_dtype": "float16", "quant_scheme": "bnb", "quant_config": {"load_in_8bit": True}},
+                "4bit-bnb": {
+                    "torch_dtype": "float16",
+                    "quant_scheme": "bnb",
+                    "quant_config": {"load_in_4bit": True},
+                },
+                "8bit-bnb": {
+                    "torch_dtype": "float16",
+                    "quant_scheme": "bnb",
+                    "quant_config": {"load_in_8bit": True},
+                },
             }
         elif subset == "gptq":
             return {
                 "4bit-gptq-exllama-v1": {
                     "torch_dtype": "float16",
                     "quant_scheme": "gptq",
-                    "quant_config": {"bits": 4, "use_exllama ": True, "version": 1, "model_seqlen": 256},
+                    "quant_config": {
+                        "bits": 4,
+                        "use_exllama ": True,
+                        "version": 1,
+                        "model_seqlen": 256,
+                    },
                 },
                 "4bit-gptq-exllama-v2": {
                     "torch_dtype": "float16",
                     "quant_scheme": "gptq",
-                    "quant_config": {"bits": 4, "use_exllama ": True, "version": 2, "model_seqlen": 256},
+                    "quant_config": {
+                        "bits": 4,
+                        "use_exllama ": True,
+                        "version": 2,
+                        "model_seqlen": 256,
+                    },
                 },
             }
         elif subset == "awq":
@@ -122,7 +162,11 @@ class CUDAPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
                     "quant_config": {
                         "bits": 4,
                         "version": "exllama",
-                        "exllama_config": {"version": 1, "max_input_len": 64, "max_batch_size": 1},
+                        "exllama_config": {
+                            "version": 1,
+                            "max_input_len": 64,
+                            "max_batch_size": 1,
+                        },
                     },
                 },
                 "4bit-awq-exllama-v2": {
@@ -131,7 +175,11 @@ class CUDAPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
                     "quant_config": {
                         "bits": 4,
                         "version": "exllama",
-                        "exllama_config": {"version": 2, "max_input_len": 64, "max_batch_size": 1},
+                        "exllama_config": {
+                            "version": 2,
+                            "max_input_len": 64,
+                            "max_batch_size": 1,
+                        },
                     },
                 },
             }

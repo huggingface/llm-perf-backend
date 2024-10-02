@@ -1,7 +1,5 @@
 import pandas as pd
 
-from optimum_benchmark.benchmark.report import BenchmarkReport
-
 INPUT_SHAPES = {"batch_size": 1, "sequence_length": 256}
 GENERATE_KWARGS = {"max_new_tokens": 64, "min_new_tokens": 64}
 
@@ -14,34 +12,36 @@ PRETRAINED_OPEN_LLM_LIST = (
     .tolist()
 )
 
+
 def get_top_llm_list(n: int = 10) -> list:
     """
     Fetches the top n text generation models from the Hugging Face dataset.
-    
+
     Args:
         n (int): Number of top models to retrieve. Defaults to 10.
-    
+
     Returns:
         list: A list of strings representing the top n models in the format "organization/model_name".
     """
     try:
         # Download the dataset from the Hugging Face Hub
         from datasets import load_dataset
-        
+
         ds = load_dataset("optimum-benchmark/top-text-generation-models")
-        
+
         # Get the data from the dataset
-        models_data = ds['train'].to_pandas().to_dict('records')
+        models_data = ds["train"].to_pandas().to_dict("records")
 
         # sort by downloads
-        models_data = sorted(models_data, key=lambda x: x['downloads'], reverse=True)
-        
+        models_data = sorted(models_data, key=lambda x: x["downloads"], reverse=True)
+
         # Create the list of top models
         top_models = [f"{model['organization']}/{model['model_name']}" for model in models_data[:n]]
-        
+
         return top_models
     except Exception as e:
         print(f"Error fetching top LLM list: {e}")
         return []
+
 
 CANONICAL_PRETRAINED_OPEN_LLM_LIST = get_top_llm_list(n=10)

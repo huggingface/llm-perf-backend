@@ -3,10 +3,10 @@ from glob import glob
 
 import pandas as pd
 from huggingface_hub import create_repo, snapshot_download, upload_file
+from optimum_benchmark import Benchmark
 from tqdm import tqdm
 
 from src.common.hardware_config import load_hardware_configs
-from optimum_benchmark import Benchmark
 
 REPO_TYPE = "dataset"
 MAIN_REPO_ID = "optimum-benchmark/llm-perf-leaderboard"
@@ -31,7 +31,12 @@ def gather_benchmarks(subset: str, machine: str, backend: str, hardware: str):
     perf_df = PERF_DF.format(subset=subset, machine=machine)
     benchmarks.to_csv(perf_df, index=False)
     create_repo(repo_id=MAIN_REPO_ID, repo_type=REPO_TYPE, private=False, exist_ok=True)
-    upload_file(repo_id=MAIN_REPO_ID, repo_type=REPO_TYPE, path_in_repo=perf_df, path_or_fileobj=perf_df)
+    upload_file(
+        repo_id=MAIN_REPO_ID,
+        repo_type=REPO_TYPE,
+        path_in_repo=perf_df,
+        path_or_fileobj=perf_df,
+    )
 
 
 def update_perf_dfs():
@@ -44,7 +49,12 @@ def update_perf_dfs():
         for subset in hardware_config.subsets:
             for backend in hardware_config.backends:
                 try:
-                    gather_benchmarks(subset, hardware_config.machine, backend, hardware_config.hardware)
+                    gather_benchmarks(
+                        subset,
+                        hardware_config.machine,
+                        backend,
+                        hardware_config.hardware,
+                    )
                 except Exception:
                     print(
                         f"benchmark for subset: {subset}, machine: {hardware_config.machine}, backend: {backend}, hardware: {hardware_config.hardware} not found"
@@ -66,7 +76,10 @@ def update_llm_df():
     subprocess.run(scrapping_script, shell=True)
     create_repo(repo_id=MAIN_REPO_ID, repo_type=REPO_TYPE, exist_ok=True, private=False)
     upload_file(
-        repo_id=MAIN_REPO_ID, repo_type=REPO_TYPE, path_in_repo=LLM_DF, path_or_fileobj="open-llm-leaderboard.csv"
+        repo_id=MAIN_REPO_ID,
+        repo_type=REPO_TYPE,
+        path_in_repo=LLM_DF,
+        path_or_fileobj="open-llm-leaderboard.csv",
     )
 
 

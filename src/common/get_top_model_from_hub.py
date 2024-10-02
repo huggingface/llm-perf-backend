@@ -1,9 +1,11 @@
-import requests
-import os
 import json
-from typing import List, Dict
+import os
 from collections import defaultdict
+from typing import Dict, List
+
+import requests
 from datasets import Dataset
+
 
 def get_top_text_generation_models(n: int, sort: str = "downloads", direction: int = -1) -> List[Dict]:
     base_url = "https://huggingface.co/api/models"
@@ -12,7 +14,7 @@ def get_top_text_generation_models(n: int, sort: str = "downloads", direction: i
         "direction": direction,
         "limit": n,
         "filter": "text-generation",
-        "full": "false"
+        "full": "false",
     }
 
     headers = {}
@@ -26,28 +28,33 @@ def get_top_text_generation_models(n: int, sort: str = "downloads", direction: i
     models = response.json()
     return [
         {
-            "organization": model['id'].split('/')[0],
-            "model_name": model['id'].split('/')[-1],
-            "downloads": model.get('downloads', 0)
+            "organization": model["id"].split("/")[0],
+            "model_name": model["id"].split("/")[-1],
+            "downloads": model.get("downloads", 0),
         }
-        for model in models if 'downloads' in model
+        for model in models
+        if "downloads" in model
     ]
 
+
 def save_to_json(data: List[Dict], filename: str):
-    with open(filename, 'w', encoding='utf-8') as f:
+    with open(filename, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
     print(f"Data saved to {filename}")
+
 
 def compute_org_downloads(models: List[Dict]) -> Dict[str, int]:
     org_downloads = defaultdict(int)
     for model in models:
-        org_downloads[model['organization']] += model['downloads']
+        org_downloads[model["organization"]] += model["downloads"]
     return dict(org_downloads)
+
 
 def upload_to_hf_dataset(data: List[Dict], dataset_name: str):
     dataset = Dataset.from_list(data)
     dataset.push_to_hub(dataset_name)
     print(f"Data uploaded to Hugging Face dataset: {dataset_name}")
+
 
 def main():
     # Set up authentication (optional, but recommended)
@@ -74,6 +81,7 @@ def main():
     sorted_orgs = sorted(org_downloads.items(), key=lambda x: x[1], reverse=True)[:10]
     for i, (org, downloads) in enumerate(sorted_orgs, 1):
         print(f"{i}. {org}: {downloads:,} downloads")
+
 
 if __name__ == "__main__":
     main()
