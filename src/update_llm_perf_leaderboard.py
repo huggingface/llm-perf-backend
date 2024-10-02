@@ -43,6 +43,10 @@ def update_perf_dfs():
     """
     Update the performance dataframes for all machines
     """
+    import os
+
+    print(os.getcwd())
+    print(os.listdir())
     hardware_configs = load_hardware_configs("src/hardware.yml")
 
     for hardware_config in hardware_configs:

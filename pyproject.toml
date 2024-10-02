@@ -38,5 +38,8 @@ skip-magic-trailing-comma = false
 
 [tool.rye.scripts]
 style = { chain = ["check", "format" ] }
-"check" = "ruff check --fix"
+quality = { chain = ["check-quality", "format-check"] }
+"check-fix" = "ruff check --fix"
 "format" = "ruff format"
+"check-quality" = "ruff check ."
+"format-check" = "ruff format --check ."
