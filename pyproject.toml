@@ -37,7 +37,7 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 
 [tool.rye.scripts]
-style = { chain = ["check", "format" ] }
+style = { chain = ["check-fix", "format" ] }
 quality = { chain = ["check-quality", "format-check"] }
 "check-fix" = "ruff check --fix"
 "format" = "ruff format"
