@@ -1,12 +1,17 @@
 from itertools import product
 from typing import Any, Dict, List
 
-from src.common.benchmark_runner import LLMPerfBenchmarkManager
-from src.common.utils import CANONICAL_PRETRAINED_OPEN_LLM_LIST, GENERATE_KWARGS, INPUT_SHAPES
 from optimum_benchmark import PyTorchConfig
 from optimum_benchmark.benchmark.config import BenchmarkConfig
 from optimum_benchmark.launchers.process.config import ProcessConfig
 from optimum_benchmark.scenarios.inference.config import InferenceConfig
+
+from src.common.benchmark_runner import LLMPerfBenchmarkManager
+from src.common.utils import (
+    CANONICAL_PRETRAINED_OPEN_LLM_LIST,
+    GENERATE_KWARGS,
+    INPUT_SHAPES,
+)
 
 
 class CPUPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
@@ -19,9 +24,15 @@ class CPUPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
 
     def get_list_of_benchmarks_to_run(self) -> List[Dict[str, Any]]:
         return [
-            {"model": model, "attn_implementation": attn_impl, "weights_config": weights_cfg}
+            {
+                "model": model,
+                "attn_implementation": attn_impl,
+                "weights_config": weights_cfg,
+            }
             for model, attn_impl, weights_cfg in product(
-                CANONICAL_PRETRAINED_OPEN_LLM_LIST, self.attention_configs, self.weights_configs.keys()
+                CANONICAL_PRETRAINED_OPEN_LLM_LIST,
+                self.attention_configs,
+                self.weights_configs.keys(),
             )
         ]
 
@@ -76,9 +87,21 @@ class CPUPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
     def _get_weights_configs(self, subset) -> Dict[str, Dict[str, Any]]:
         if subset == "unquantized":
             return {
-                "float32": {"torch_dtype": "float32", "quant_scheme": None, "quant_config": {}},
-                "float16": {"torch_dtype": "float16", "quant_scheme": None, "quant_config": {}},
-                "bfloat16": {"torch_dtype": "bfloat16", "quant_scheme": None, "quant_config": {}},
+                "float32": {
+                    "torch_dtype": "float32",
+                    "quant_scheme": None,
+                    "quant_config": {},
+                },
+                "float16": {
+                    "torch_dtype": "float16",
+                    "quant_scheme": None,
+                    "quant_config": {},
+                },
+                "bfloat16": {
+                    "torch_dtype": "bfloat16",
+                    "quant_scheme": None,
+                    "quant_config": {},
+                },
             }
         else:
             raise ValueError(f"Unknown subset: {subset}")

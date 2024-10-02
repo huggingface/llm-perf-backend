@@ -1,0 +1,40 @@
+[project]
+name = "llm-perf-backend"
+version = "0.1.0"
+description = "Backend for https://huggingface.co/spaces/optimum/llm-perf-leaderboard"
+authors = [
+    { name = "baptiste", email = "baptiste.colle@huggingface.co" }
+]
+dependencies = []
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = []
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/llm_perf_backend"]
+
+[tool.ruff]
+line-length = 120
+lint.ignore = ["C901", "E501"]
+lint.select = ["C", "E", "F", "I", "W", "I001"]
+
+[tool.ruff.format]
+line-ending = "auto"
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+
+[tool.rye.scripts]
+style = { chain = ["check", "format" ] }
+"check" = "ruff check --fix"
+"format" = "ruff format"

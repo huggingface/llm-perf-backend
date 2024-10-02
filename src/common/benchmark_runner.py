@@ -4,17 +4,24 @@ from abc import ABC, abstractmethod
 from logging import getLogger
 from typing import Any, Dict, List, Optional
 
+from optimum_benchmark import Benchmark, BenchmarkConfig, BenchmarkReport
+from optimum_benchmark.logging_utils import setup_logging
+
 from src.common.utils import (
     CANONICAL_PRETRAINED_OPEN_LLM_LIST,
     OPEN_LLM_LIST,
     PRETRAINED_OPEN_LLM_LIST,
 )
-from optimum_benchmark import Benchmark, BenchmarkConfig, BenchmarkReport
-from optimum_benchmark.logging_utils import setup_logging
 
 
 class LLMPerfBenchmarkManager(ABC):
-    def __init__(self, backend: str, device: str, subset: Optional[str] = None, machine: Optional[str] = None):
+    def __init__(
+        self,
+        backend: str,
+        device: str,
+        subset: Optional[str] = None,
+        machine: Optional[str] = None,
+    ):
         self.backend = backend
         self.device = device
         self.subset = subset or os.getenv("SUBSET", None)
