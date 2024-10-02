@@ -1,7 +1,7 @@
 name: Update LLM Perf Benchmarks - Intel Onnxruntime
 
 on:
-  push:
+  # push:
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
@@ -50,4 +50,5 @@ jobs:
             pip install packaging && pip install einops scipy optimum codecarbon
             pip install -U transformers huggingface_hub[hf_transfer]
             pip install git+https://github.com/huggingface/optimum-benchmark.git[onnxruntime]
+            pip install -e .
             python src/benchmark_runners/cpu/update_llm_perf_cpu_onnxruntime.py

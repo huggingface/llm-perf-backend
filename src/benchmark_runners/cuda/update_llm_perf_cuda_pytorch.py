@@ -1,16 +1,17 @@
 from itertools import product
 from typing import Any, Dict, List
 
+from optimum_benchmark import PyTorchConfig
+from optimum_benchmark.benchmark.config import BenchmarkConfig
+from optimum_benchmark.launchers.process.config import ProcessConfig
+from optimum_benchmark.scenarios.inference.config import InferenceConfig
+
 from src.common.benchmark_runner import LLMPerfBenchmarkManager
 from src.common.utils import (
     CANONICAL_PRETRAINED_OPEN_LLM_LIST,
     GENERATE_KWARGS,
     INPUT_SHAPES,
 )
-from optimum_benchmark import PyTorchConfig
-from optimum_benchmark.benchmark.config import BenchmarkConfig
-from optimum_benchmark.launchers.process.config import ProcessConfig
-from optimum_benchmark.scenarios.inference.config import InferenceConfig
 
 
 class CUDAPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):

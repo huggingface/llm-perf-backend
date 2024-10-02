@@ -39,7 +39,7 @@ class CPUOpenVINOBenchmarkRunner(LLMPerfBenchmarkManager):
     def get_benchmark_name(self, model: str, **kwargs) -> str:
         weights_config = kwargs["weights_config"]
         attn_implementation = kwargs["attn_implementation"]
-        return f"{model}-{weights_config}-{attn_implementation}-{self.backend}"
+        return f"{model}-{weights_config}-{attn_implementation}"
 
     def get_benchmark_config(self, model: str, **kwargs) -> BenchmarkConfig:
         weights_config = kwargs["weights_config"]
