@@ -1,4 +1,4 @@
-name: Quality Checks
+name: Style Checks
 
 on:
   push:
@@ -20,10 +20,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Rye
-        run: |
-          curl -sSf https://rye.astral.sh/get | bash
-          echo "$HOME/.rye/shims" >> $GITHUB_PATH
+      - name: Install a specific version
+        uses: eifinger/setup-rye@v4
+        with:
+          version: 'latest'
 
       - name: Set up Python and dependencies
         run: |
