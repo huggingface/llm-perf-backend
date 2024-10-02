@@ -1,7 +1,7 @@
 from itertools import product
 from typing import Any, Dict, List
 
-from optimum_benchmark import PyTorchConfig
+from optimum_benchmark import ORTConfig
 from optimum_benchmark.benchmark.config import BenchmarkConfig
 from optimum_benchmark.launchers.process.config import ProcessConfig
 from optimum_benchmark.scenarios.inference.config import InferenceConfig
@@ -14,9 +14,9 @@ from src.common.utils import (
 )
 
 
-class CPUPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
+class CPUOnnxRuntimeBenchmarkRunner(LLMPerfBenchmarkManager):
     def __init__(self):
-        super().__init__(backend="pytorch", device="cpu")
+        super().__init__(backend="onnxruntime", device="cpu")
 
         self.attention_configs = self._get_attention_configs()
         assert self.subset is not None, "SUBSET environment variable must be set for benchmarking"
@@ -39,7 +39,7 @@ class CPUPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
     def get_benchmark_name(self, model: str, **kwargs) -> str:
         weights_config = kwargs["weights_config"]
         attn_implementation = kwargs["attn_implementation"]
-        return f"{model}-{weights_config}-{attn_implementation}"
+        return f"{model}-{weights_config}-{attn_implementation}-{self.backend}"
 
     def get_benchmark_config(self, model: str, **kwargs) -> BenchmarkConfig:
         weights_config = kwargs["weights_config"]
@@ -50,7 +50,6 @@ class CPUPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
         ), f"your config does not contain {weights_config}, adjust your _get_weights_configs to fix this issue"
 
         torch_dtype = self.weights_configs[weights_config]["torch_dtype"]
-        quant_scheme = self.weights_configs[weights_config]["quant_scheme"]
         quant_config = self.weights_configs[weights_config]["quant_config"]
 
         launcher_config = ProcessConfig()
@@ -64,21 +63,20 @@ class CPUPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
             input_shapes=INPUT_SHAPES,
             generate_kwargs=GENERATE_KWARGS,
         )
-        backend_config = PyTorchConfig(
+        backend_config = ORTConfig(
             model=model,
             device="cpu",
+            device_ids="0",
             no_weights=True,
             library="transformers",
             task="text-generation",
             torch_dtype=torch_dtype,
-            quantization_scheme=quant_scheme,
             quantization_config=quant_config,
-            attn_implementation=attn_implementation,
             model_kwargs={"trust_remote_code": True},
         )
 
         return BenchmarkConfig(
-            name=f"{weights_config}-{attn_implementation}",
+            name=f"{weights_config}-{attn_implementation}-{self.backend}",
             scenario=scenario_config,
             launcher=launcher_config,
             backend=backend_config,
@@ -111,5 +109,5 @@ class CPUPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
 
 
 if __name__ == "__main__":
-    runner = CPUPyTorchBenchmarkRunner()
+    runner = CPUOnnxRuntimeBenchmarkRunner()
     runner.run_benchmarks()

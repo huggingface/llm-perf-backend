@@ -54,4 +54,4 @@ jobs:
             pip install packaging && pip install flash-attn einops scipy auto-gptq optimum bitsandbytes autoawq codecarbon
             pip install -U transformers huggingface_hub[hf_transfer]
             pip install git+https://github.com/huggingface/optimum-benchmark.git
-            python src/benchmark_runners/update_llm_perf_cuda_pytorch.py
+            python src/benchmark_runners/cuda/update_llm_perf_cuda_pytorch.py

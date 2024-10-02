@@ -38,7 +38,7 @@ class CUDAPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
     def get_benchmark_name(self, model: str, **kwargs) -> str:
         weights_config = kwargs["weights_config"]
         attn_implementation = kwargs["attn_implementation"]
-        return f"{model}-{weights_config}-{attn_implementation}"
+        return f"{model}-{weights_config}-{attn_implementation}-{self.backend}"
 
     def is_benchmark_supported(self, **kwargs) -> bool:
         if kwargs["attn_implementation"] == "flash_attention_2" and kwargs["weights_config"] == "float32":
