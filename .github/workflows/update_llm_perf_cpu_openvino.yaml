@@ -49,6 +49,6 @@ jobs:
           run: |
             pip install packaging && pip install einops scipy optimum codecarbon
             pip install -U transformers huggingface_hub[hf_transfer]
-            pip install git+https://github.com/huggingface/optimum-benchmark.git[openvino]
+            pip install 'optimum-benchmarkp[openvino] @ https://github.com/huggingface/optimum-benchmark.git'
             pip install -e .
             python src/benchmark_runners/cpu/update_llm_perf_cpu_openvino.py
