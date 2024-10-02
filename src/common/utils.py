@@ -44,14 +44,4 @@ def get_top_llm_list(n: int = 10) -> list:
         print(f"Error fetching top LLM list: {e}")
         return []
 
-def is_benchmark_conducted(push_repo_id, subfolder):
-    try:
-        report = BenchmarkReport.from_pretrained(repo_id=push_repo_id, subfolder=subfolder)
-        if "traceback" in report.to_dict():
-            return False
-        else:
-            return True
-    except Exception:
-        return False
-
 CANONICAL_PRETRAINED_OPEN_LLM_LIST = get_top_llm_list(n=10)

@@ -1,0 +1,36 @@
+- machine: 1xA10
+  hardware: cuda
+  subsets:
+    - unquantized
+    - awq
+    - bnb
+    - gptq
+  backends:
+    - pytorch
+
+- machine: 1xA100
+  hardware: cuda
+  subsets:
+    - unquantized
+    - awq
+    - bnb
+    - gptq
+  backends:
+    - pytorch
+
+- machine: 1xT4
+  hardware: cuda
+  subsets:
+    - unquantized
+    - awq
+    - bnb
+    - gptq
+  backends:
+    - pytorch
+
+- machine: 32vCPU-C7i
+  hardware: cpu
+  subsets:
+    - unquantized
+  backends:
+    - pytorch
