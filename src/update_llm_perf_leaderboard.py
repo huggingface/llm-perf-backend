@@ -43,7 +43,7 @@ def update_perf_dfs():
     """
     Update the performance dataframes for all machines
     """
-    hardware_configs = load_hardware_configs("llm_perf/hardware.yml")
+    hardware_configs = load_hardware_configs("src/hardware.yaml")
 
     for hardware_config in hardware_configs:
         for subset in hardware_config.subsets:

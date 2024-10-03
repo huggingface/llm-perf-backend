@@ -1,16 +1,17 @@
 from itertools import product
 from typing import Any, Dict, List
 
-from llm_perf.common.benchmark_runner import LLMPerfBenchmarkManager
-from llm_perf.common.utils import (
-    CANONICAL_PRETRAINED_OPEN_LLM_LIST,
-    GENERATE_KWARGS,
-    INPUT_SHAPES,
-)
 from optimum_benchmark import PyTorchConfig
 from optimum_benchmark.benchmark.config import BenchmarkConfig
 from optimum_benchmark.launchers.process.config import ProcessConfig
 from optimum_benchmark.scenarios.inference.config import InferenceConfig
+
+from src.common.benchmark_runner import LLMPerfBenchmarkManager
+from src.common.utils import (
+    CANONICAL_PRETRAINED_OPEN_LLM_LIST,
+    GENERATE_KWARGS,
+    INPUT_SHAPES,
+)
 
 
 class CUDAPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
@@ -38,7 +39,7 @@ class CUDAPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
     def get_benchmark_name(self, model: str, **kwargs) -> str:
         weights_config = kwargs["weights_config"]
         attn_implementation = kwargs["attn_implementation"]
-        return f"{model}-{weights_config}-{attn_implementation}"
+        return f"{model}-{weights_config}-{attn_implementation}-{self.backend}"
 
     def is_benchmark_supported(self, **kwargs) -> bool:
         if kwargs["attn_implementation"] == "flash_attention_2" and kwargs["weights_config"] == "float32":

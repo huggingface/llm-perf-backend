@@ -5,7 +5,9 @@ description = "Backend for https://huggingface.co/spaces/optimum/llm-perf-leader
 authors = [
     { name = "baptiste", email = "baptiste.colle@huggingface.co" }
 ]
-dependencies = []
+dependencies = [
+    "ruff>=0.6.8",
+]
 readme = "README.md"
 requires-python = ">= 3.8"
 
@@ -21,7 +23,7 @@ dev-dependencies = []
 allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/llm_perf_backend"]
+packages = ["src"]
 
 [tool.ruff]
 line-length = 120
@@ -35,6 +37,9 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 
 [tool.rye.scripts]
-style = { chain = ["check", "format" ] }
-"check" = "ruff check --fix"
+style = { chain = ["check-fix", "format" ] }
+quality = { chain = ["check-quality", "format-check"] }
+"check-fix" = "ruff check --fix"
 "format" = "ruff format"
+"check-quality" = "ruff check ."
+"format-check" = "ruff format --check ."

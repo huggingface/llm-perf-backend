@@ -1,0 +1,33 @@
+name: Quality Checks
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install a specific version
+        uses: eifinger/setup-rye@v4
+        with:
+          version: 'latest'
+
+      - name: Set up Python and dependencies
+        run: |
+          rye sync
+
+      - name: Check quality
+        run: rye run quality

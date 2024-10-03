@@ -27,6 +27,7 @@ jobs:
           pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
           pip install pandas huggingface_hub[hf_transfer]
           pip install git+https://github.com/huggingface/optimum-benchmark.git
+          pip install -e .
 
 
       - name: Update Open LLM Data
