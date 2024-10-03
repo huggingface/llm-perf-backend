@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
-  push:
-    branches:
-      - main
   pull_request:
+    paths:
+      - 'src/benchmark_runners/rocm/update_llm_perf_rocm_pytorch.py'
+      - 'src/common/**'
 
 concurrency:
   cancel-in-progress: true

@@ -4,10 +4,12 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 */6 * * *"
-  push:
-    branches:
-      - main
   pull_request:
+    paths:
+      - 'src/update_llm_perf_leaderboard.py'
+      - 'src/hardware.yaml'
+      - 'src/common/**'
+  
 
 concurrency:
   cancel-in-progress: true

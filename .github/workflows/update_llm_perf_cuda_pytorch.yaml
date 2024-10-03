@@ -4,11 +4,10 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "0 0 * * *"
-  push:
-    branches:
-      - main
   pull_request:
-
+    paths:
+      - 'src/benchmark_runners/cuda/update_llm_perf_cuda_pytorch.py'
+      - 'src/common/**'
 concurrency:
   cancel-in-progress: true
   group: ${{ github.workflow }}-${{ github.ref }}
