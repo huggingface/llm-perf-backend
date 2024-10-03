@@ -188,3 +188,5 @@ wip/
 
 requirements.lock
 requirements-dev.lock
+
+pyrsmi

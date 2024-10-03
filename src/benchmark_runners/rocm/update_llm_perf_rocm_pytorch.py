@@ -70,7 +70,6 @@ class ROCmPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
         )
         backend_config = PyTorchConfig(
             model=model,
-            device_ids="0",
             no_weights=True,
             library="transformers",
             task="text-generation",
