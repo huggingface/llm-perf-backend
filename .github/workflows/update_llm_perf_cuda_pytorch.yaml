@@ -8,6 +8,7 @@ on:
     paths:
       - 'src/benchmark_runners/cuda/update_llm_perf_cuda_pytorch.py'
       - 'src/common/**'
+
 concurrency:
   cancel-in-progress: true
   group: ${{ github.workflow }}-${{ github.ref }}

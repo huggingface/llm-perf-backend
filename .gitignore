@@ -185,3 +185,6 @@ external_repos/
 outputs/
 .env
 wip/
+
+requirements.lock
+requirements-dev.lock
