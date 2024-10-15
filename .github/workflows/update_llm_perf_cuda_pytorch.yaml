@@ -55,6 +55,7 @@ jobs:
             --volume ${{ github.workspace }}:/workspace
             --workdir /workspace
           run: |
+          
             pip install packaging && pip install flash-attn einops scipy auto-gptq optimum bitsandbytes autoawq codecarbon
             pip install -U transformers huggingface_hub[hf_transfer]
             pip install git+https://github.com/huggingface/optimum-benchmark.git

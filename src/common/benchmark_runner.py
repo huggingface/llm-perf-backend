@@ -13,7 +13,6 @@ from src.common.utils import (
     PRETRAINED_OPEN_LLM_LIST,
 )
 
-
 class LLMPerfBenchmarkManager(ABC):
     def __init__(
         self,

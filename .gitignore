@@ -185,3 +185,9 @@ external_repos/
 outputs/
 .env
 wip/
+
+
+requirements-dev.lock
+requirements.lock
+
+optimum-benchmark/
