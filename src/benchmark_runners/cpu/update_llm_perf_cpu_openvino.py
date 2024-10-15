@@ -88,22 +88,23 @@ class CPUOpenVINOBenchmarkRunner(LLMPerfBenchmarkManager):
                     "quant_scheme": None,
                     "quant_config": {},
                 },
-                "float16": {
-                    "torch_dtype": "float16",
-                    "quant_scheme": None,
-                    "quant_config": {},
-                },
-                "bfloat16": {
-                    "torch_dtype": "bfloat16",
-                    "quant_scheme": None,
-                    "quant_config": {},
-                },
+                # "float16": {
+                #     "torch_dtype": "float16",
+                #     "quant_scheme": None,
+                #     "quant_config": {},
+                # },
+                # "bfloat16": {
+                #     "torch_dtype": "bfloat16",
+                #     "quant_scheme": None,
+                #     "quant_config": {},
+                # },
             }
         else:
             raise ValueError(f"Unknown subset: {subset}")
 
     def _get_attention_configs(self) -> List[str]:
-        return ["eager", "sdpa"]
+        # return ["eager", "sdpa"]
+        return ["eager"]
 
 
 if __name__ == "__main__":

@@ -16,7 +16,8 @@ dependencies = [
     "codecarbon",
     "transformers",
     "huggingface_hub[hf_transfer]",
-    "optimum-benchmark @ git+https://github.com/huggingface/optimum-benchmark.git",
+    # "optimum-benchmark @ git+https://github.com/huggingface/optimum-benchmark.git",
+    "optimum-benchmark @ file:./optimum-benchmark",
 ]
 readme = "README.md"
 requires-python = ">= 3.8"
@@ -24,11 +25,13 @@ requires-python = ">= 3.8"
 [project.optional-dependencies]
 onnxruntime = [
     "optimum-benchmark[onnx] @ git+https://github.com/huggingface/optimum-benchmark.git",
+    # "optimum-benchmark[onnx] @ file:./optimum-benchmark",
     "onnx",
     "onnxruntime"
 ]
 openvino = [
-    "optimum-benchmark[openvino] @ git+https://github.com/huggingface/optimum-benchmark.git",
+    # "optimum-benchmark[openvino] @ git+https://github.com/huggingface/optimum-benchmark.git",
+    "optimum-benchmark[openvino] @ file:./optimum-benchmark",
 ]
 
 [project.scripts]

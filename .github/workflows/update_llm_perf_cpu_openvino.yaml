@@ -18,6 +18,15 @@ env:
 
 jobs:
   run_benchmarks:
+    if: ${{
+      (github.event_name == 'push') ||
+      (github.event_name == 'workflow_dispatch') ||
+      contains( github.event.pull_request.labels.*.name, 'leaderboard') ||
+      contains( github.event.pull_request.labels.*.name, 'cpu') ||
+      contains( github.event.pull_request.labels.*.name, 'openvino') ||
+      contains( github.event.pull_request.labels.*.name, 'cpu_openvino')
+      }}
+
     strategy:
       fail-fast: false
       matrix:
@@ -30,6 +39,23 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Install requirements
+        uses: addnab/docker-run-action@v3
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        with:
+          image: ${{ env.IMAGE }}
+          options: |
+            --rm
+            --shm-size 64G
+            --env HF_TOKEN
+            --env MKL_THREADING_LAYER=GNU
+            --env HF_HUB_ENABLE_HF_TRANSFER=1
+            --volume ${{ github.workspace }}:/workspace
+            --workdir /workspace
+          run: |
+            pip install -e .[openvino]
 
       - name: Run benchmarks
         uses: addnab/docker-run-action@v3
@@ -50,8 +76,4 @@ jobs:
             --volume ${{ github.workspace }}:/workspace
             --workdir /workspace
           run: |
-            pip install packaging && pip install einops scipy optimum codecarbon
-            pip install -U transformers huggingface_hub[hf_transfer]
-            pip install -e git+https://github.com/huggingface/optimum-benchmark.git#egg=optimum-benchmark[openvino]
-            pip install -e .
-            python src/benchmark_runners/cpu/update_llm_perf_cpu_openvino.py
+            llm-perf --hardware cpu --backend openvino

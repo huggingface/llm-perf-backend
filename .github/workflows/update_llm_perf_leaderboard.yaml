@@ -15,6 +15,13 @@ concurrency:
 
 jobs:
   update_llm_perf_leaderboard:
+    if: ${{
+      (github.event_name == 'push') ||
+      (github.event_name == 'workflow_dispatch') ||
+      contains( github.event.pull_request.labels.*.name, 'leaderboard') ||
+      contains( github.event.pull_request.labels.*.name, 'update_leaderboard')
+      }}
+
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
