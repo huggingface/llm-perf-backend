@@ -66,5 +66,5 @@ jobs:
             --volume ${{ github.workspace }}:/workspace
             --workdir /workspace
           run: |
-            pip install .[cuda]
+            pip install -e .[cuda]
             llm-perf run-benchmark --hardware cuda --backend pytorch

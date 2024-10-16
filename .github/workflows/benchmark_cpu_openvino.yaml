@@ -65,5 +65,5 @@ jobs:
             --volume ${{ github.workspace }}:/workspace
             --workdir /workspace
           run: |
-            pip install .[openvino]
+            pip install -e .[openvino]
             llm-perf run-benchmark --hardware cpu --backend openvino

@@ -31,5 +31,5 @@ run_rocm_container:
 
 cpu-pytorch-container:
 	docker build -t cpu-pytorch -f docker/cpu-pytorch/Dockerfile .
-	docker run -it --rm --pid host cpu-pytorch /bin/bash
-	# docker run -it --rm --pid host 
+	# docker run -it --rm --pid host cpu-pytorch /bin/bash
+	docker run -it --rm --pid host cpu-pytorch

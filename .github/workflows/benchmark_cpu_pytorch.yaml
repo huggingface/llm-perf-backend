@@ -63,5 +63,5 @@ jobs:
             --volume ${{ github.workspace }}:/workspace
             --workdir /workspace
           run: |
-            pip install .
+            pip install -e .
             llm-perf run-benchmark --hardware cpu --backend pytorch
