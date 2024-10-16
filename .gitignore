@@ -192,3 +192,5 @@ requirements.lock
 
 optimum-benchmark/
 .python-version
+
+open-llm-leaderboard.csv

@@ -46,6 +46,7 @@ jobs:
           SUBSET: ${{ matrix.subset }}
           MACHINE: ${{ matrix.machine.name }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          BENCHMARK_TOP_N: 3
         with:
           image: ${{ env.IMAGE }}
           options: |
@@ -56,11 +57,9 @@ jobs:
             --env HF_TOKEN
             --env MKL_THREADING_LAYER=GNU
             --env HF_HUB_ENABLE_HF_TRANSFER=1
+            --env BENCHMARK_TOP_N
             --volume ${{ github.workspace }}:/workspace
             --workdir /workspace
           run: |
-            pip install packaging && pip install einops scipy optimum codecarbon
-            pip install -U transformers huggingface_hub[hf_transfer]
-            pip install git+https://github.com/huggingface/optimum-benchmark.git
-            pip install -e .
-            python src/benchmark_runners/cpu/update_llm_perf_cpu_pytorch.py
+            pip install .
+            llm-perf --hardware cpu --backend pytorch

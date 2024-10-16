@@ -18,6 +18,8 @@ from llm_perf.benchmark_runners.cuda.update_llm_perf_cuda_pytorch import (
     CUDAPyTorchBenchmarkRunner,
 )
 
+from llm_perf.update_llm_perf_leaderboard import update_llm_perf_leaderboard
+
 if os.environ.get("DISABLE_WARNINGS", "0") == "1":
     warnings.filterwarnings("ignore")
 
@@ -63,6 +65,11 @@ def run_benchmark(
             raise typer.Exit(code=1)
 
     runner.run_benchmarks()
+
+
+@app.command()
+def update_leaderboard():
+    update_llm_perf_leaderboard()
 
 
 if __name__ == "__main__":

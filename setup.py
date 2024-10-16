@@ -13,6 +13,7 @@ INSTALL_REQUIRES = [
     "transformers",
     "huggingface_hub[hf_transfer]",
     "datasets>=2.14.6",
+    "beautifulsoup4",
     "optimum-benchmark @ git+https://github.com/huggingface/optimum-benchmark.git",
 ]
 
@@ -25,6 +26,12 @@ EXTRAS_REQUIRE = {
     ],
     "openvino": [
         "optimum-benchmark[openvino] @ git+https://github.com/huggingface/optimum-benchmark.git"
+    ],
+    "cuda": [
+        "flash-attn",
+        "auto-gptq",
+        "bitsandbytes",
+        "autoawq",
     ],
 }
 
