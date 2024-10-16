@@ -4,7 +4,6 @@ from glob import glob
 import pandas as pd
 from huggingface_hub import create_repo, snapshot_download, upload_file
 from optimum_benchmark import Benchmark
-from tqdm import tqdm
 
 from llm_perf.common.hardware_config import load_hardware_configs
 
@@ -62,15 +61,16 @@ def update_perf_dfs():
                         hardware_config.hardware,
                     )
                 except Exception as e:
-                    print(f"Dataset not found for:")
+                    print("Dataset not found for:")
                     print(f"  • Backend: {backend}")
                     print(f"  • Subset: {subset}")
                     print(f"  • Machine: {hardware_config.machine}")
                     print(f"  • Hardware Type: {hardware_config.hardware}")
                     url = f"{PERF_REPO_ID.format(subset=subset, machine=hardware_config.machine, backend=backend, hardware=hardware_config.hardware)}"
-                    print(f"Check that URL exists: https://huggingface.co/datasets/{url}")
+                    print(
+                        f"Check that URL exists: https://huggingface.co/datasets/{url}"
+                    )
                     raise e
-
 
 
 scrapping_script = """
