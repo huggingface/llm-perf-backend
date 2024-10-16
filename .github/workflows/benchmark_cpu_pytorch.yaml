@@ -24,7 +24,8 @@ jobs:
       contains( github.event.pull_request.labels.*.name, 'leaderboard') ||
       contains( github.event.pull_request.labels.*.name, 'cpu') ||
       contains( github.event.pull_request.labels.*.name, 'pytorch') ||
-      contains( github.event.pull_request.labels.*.name, 'cpu_pytorch')
+      contains( github.event.pull_request.labels.*.name, 'cpu_pytorch') ||
+      contains( github.event.head_commit.message, 'cpu_pytorch')
       }}
 
     strategy:

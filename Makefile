@@ -28,3 +28,8 @@ run_cuda_container:
 
 run_rocm_container:
 	docker run -it --rm --shm-size 64G --device /dev/kfd --device /dev/dri --volume .:/llm-perf-backend --workdir /llm-perf-backend ghcr.io/huggingface/optimum-benchmark:latest-rocm
+
+cpu-pytorch-container:
+	docker build -t cpu-pytorch -f docker/cpu-pytorch/Dockerfile .
+	docker run -it --rm --pid host cpu-pytorch /bin/bash
+	# docker run -it --rm --pid host 
