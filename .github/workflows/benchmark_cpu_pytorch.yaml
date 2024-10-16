@@ -18,16 +18,16 @@ env:
 
 jobs:
   run_benchmarks:
-    if: ${{
+    if: >-
       (github.event_name == 'push' && contains(github.event.head_commit.message, 'cpu_pytorch')) ||
-      (github.event_name == 'push') && github.ref == 'refs/heads/main' ||
-      (github.event_name == 'workflow_dispatch') ||
-      contains( github.event.pull_request.labels.*.name, 'leaderboard') ||
-      contains( github.event.pull_request.labels.*.name, 'cpu') ||
-      contains( github.event.pull_request.labels.*.name, 'pytorch') ||
-      contains( github.event.pull_request.labels.*.name, 'cpu_pytorch') ||
-
-      }}
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && (
+        contains(github.event.pull_request.labels.*.name, 'leaderboard') ||
+        contains(github.event.pull_request.labels.*.name, 'cpu') ||
+        contains(github.event.pull_request.labels.*.name, 'pytorch') ||
+        contains(github.event.pull_request.labels.*.name, 'cpu_pytorch')
+      ))
 
     strategy:
       fail-fast: false
