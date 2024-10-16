@@ -64,6 +64,7 @@ jobs:
           MACHINE: ${{ matrix.machine.name }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           DISABLE_WARNINGS: 1
+          BENCHMARK_TOP_N: 3
         with:
           image: ${{ env.IMAGE }}
           options: |
@@ -75,6 +76,7 @@ jobs:
             --env MKL_THREADING_LAYER=GNU
             --env HF_HUB_ENABLE_HF_TRANSFER=1
             --env DISABLE_WARNINGS
+            --env BENCHMARK_TOP_N
             --volume ${{ github.workspace }}:/workspace
             --workdir /workspace
           run: |
