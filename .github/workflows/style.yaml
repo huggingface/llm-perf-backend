@@ -20,14 +20,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install a specific version
-        uses: eifinger/setup-rye@v4
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
         with:
-          version: 'latest'
+          python-version: "3.10"
 
-      - name: Set up Python and dependencies
+      - name: Install quality requirements
         run: |
-          rye sync
+          pip install --upgrade pip
+          pip install ruff
 
-      - name: Check quality
-        run: rye run quality
+      - name: Check style
+        run: make quality

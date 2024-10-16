@@ -27,14 +27,16 @@ jobs:
       contains( github.event.pull_request.labels.*.name, 'cpu_onnxruntime')
       }}
 
-    strategy:
-      fail-fast: false
-      matrix:
-        subset: [unquantized]
-        machine:
-          [{ name: 32vCPU-C7i, runs-on: { group: "aws-c7i-8xlarge-plus" } }]
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     subset: [unquantized]
+    #     machine:
+    #       [{ name: 32vCPU-C7i, runs-on: { group: "aws-c7i-8xlarge-plus" } }]
 
-    runs-on: ${{ matrix.machine.runs-on }}
+    # runs-on: ${{ matrix.machine.runs-on }}
+
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -56,6 +58,8 @@ jobs:
             --workdir /workspace
           run: |
             pip install -e .[onnxruntime]
+            which llm-perf  # Add this line to check the installation
+            pip list  # Add this line to list installed packages
 
       - name: Run benchmarks
         uses: addnab/docker-run-action@v3
@@ -80,6 +84,8 @@ jobs:
             --volume ${{ github.workspace }}:/workspace
             --workdir /workspace
           run: |
+            which llm-perf  # Add this line to check the installation
+            echo $PATH  # Add this line to print the PATH
             llm-perf --hardware cpu --backend onnxruntime
             
 
