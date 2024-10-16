@@ -40,23 +40,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install requirements
-        uses: addnab/docker-run-action@v3
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        with:
-          image: ${{ env.IMAGE }}
-          options: |
-            --rm
-            --shm-size 64G
-            --env HF_TOKEN
-            --env MKL_THREADING_LAYER=GNU
-            --env HF_HUB_ENABLE_HF_TRANSFER=1
-            --volume ${{ github.workspace }}:/workspace
-            --workdir /workspace
-          run: |
-            pip install -e .[openvino]
-
       - name: Run benchmarks
         uses: addnab/docker-run-action@v3
         env:
@@ -80,4 +63,5 @@ jobs:
             --volume ${{ github.workspace }}:/workspace
             --workdir /workspace
           run: |
+            pip install -e .[openvino]
             llm-perf --hardware cpu --backend openvino

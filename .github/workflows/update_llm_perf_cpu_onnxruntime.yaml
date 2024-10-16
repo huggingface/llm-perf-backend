@@ -42,25 +42,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install requirements
-        uses: addnab/docker-run-action@v3
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        with:
-          image: ${{ env.IMAGE }}
-          options: |
-            --rm
-            --shm-size 64G
-            --env HF_TOKEN
-            --env MKL_THREADING_LAYER=GNU
-            --env HF_HUB_ENABLE_HF_TRANSFER=1
-            --volume ${{ github.workspace }}:/workspace
-            --workdir /workspace
-          run: |
-            pip install -e .[onnxruntime]
-            which llm-perf  # Add this line to check the installation
-            pip list  # Add this line to list installed packages
-
       - name: Run benchmarks
         uses: addnab/docker-run-action@v3
         env:
@@ -84,8 +65,7 @@ jobs:
             --volume ${{ github.workspace }}:/workspace
             --workdir /workspace
           run: |
-            which llm-perf  # Add this line to check the installation
-            echo $PATH  # Add this line to print the PATH
+            pip install -e .[onnxruntime]
             llm-perf --hardware cpu --backend onnxruntime
             
 
