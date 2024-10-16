@@ -1,0 +1,29 @@
+[project]
+name = "llm-perf-backend"
+version = "0.1.0"
+description = "Backend for https://huggingface.co/spaces/optimum/llm-perf-leaderboard"
+authors = [
+    { name = "baptiste", email = "baptiste.colle@huggingface.co" }
+]
+readme = "README.md"
+requires-python = ">=3.8"
+
+[project.scripts]
+llm-perf = "src.cli:app"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.ruff]
+line-length = 120
+lint.ignore = ["C901", "E501"]
+lint.select = ["C", "E", "F", "I", "W", "I001"]
+
+[tool.ruff.format]
+line-ending = "auto"
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false

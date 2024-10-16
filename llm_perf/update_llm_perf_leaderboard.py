@@ -6,7 +6,7 @@ from huggingface_hub import create_repo, snapshot_download, upload_file
 from optimum_benchmark import Benchmark
 from tqdm import tqdm
 
-from src.common.hardware_config import load_hardware_configs
+from llm_perf.common.hardware_config import load_hardware_configs
 
 REPO_TYPE = "dataset"
 MAIN_REPO_ID = "optimum-benchmark/llm-perf-leaderboard"
@@ -20,8 +20,12 @@ def gather_benchmarks(subset: str, machine: str, backend: str, hardware: str):
     """
     Gather the benchmarks for a given machine
     """
-    perf_repo_id = PERF_REPO_ID.format(subset=subset, machine=machine, backend=backend, hardware=hardware)
-    snapshot = snapshot_download(repo_type=REPO_TYPE, repo_id=perf_repo_id, allow_patterns=["**/benchmark.json"])
+    perf_repo_id = PERF_REPO_ID.format(
+        subset=subset, machine=machine, backend=backend, hardware=hardware
+    )
+    snapshot = snapshot_download(
+        repo_type=REPO_TYPE, repo_id=perf_repo_id, allow_patterns=["**/benchmark.json"]
+    )
 
     dfs = []
     for file in tqdm(glob(f"{snapshot}/**/benchmark.json", recursive=True)):

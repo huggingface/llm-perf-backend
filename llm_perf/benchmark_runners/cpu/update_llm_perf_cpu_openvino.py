@@ -6,8 +6,8 @@ from optimum_benchmark.benchmark.config import BenchmarkConfig
 from optimum_benchmark.launchers.process.config import ProcessConfig
 from optimum_benchmark.scenarios.inference.config import InferenceConfig
 
-from src.common.benchmark_runner import LLMPerfBenchmarkManager
-from src.common.utils import (
+from llm_perf.common.benchmark_runner import LLMPerfBenchmarkManager
+from llm_perf.common.utils import (
     CANONICAL_PRETRAINED_OPEN_LLM_LIST,
     GENERATE_KWARGS,
     INPUT_SHAPES,
@@ -19,7 +19,9 @@ class CPUOpenVINOBenchmarkRunner(LLMPerfBenchmarkManager):
         super().__init__(backend="openvino", device="cpu")
 
         self.attention_configs = self._get_attention_configs()
-        assert self.subset is not None, "SUBSET environment variable must be set for benchmarking"
+        assert (
+            self.subset is not None
+        ), "SUBSET environment variable must be set for benchmarking"
         self.weights_configs = self._get_weights_configs(self.subset)
 
     def get_list_of_benchmarks_to_run(self) -> List[Dict[str, Any]]:
