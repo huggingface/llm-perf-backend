@@ -12,7 +12,7 @@ REPO_TYPE = "dataset"
 MAIN_REPO_ID = "optimum-benchmark/llm-perf-leaderboard"
 PERF_REPO_ID = "optimum-benchmark/llm-perf-{backend}-{hardware}-{subset}-{machine}"
 
-PERF_DF = "perf-df-{subset}-{machine}.csv"
+PERF_DF = "perf-df-{backend}-{hardware}-{subset}-{machine}.csv"
 LLM_DF = "llm-df.csv"
 
 

@@ -1,4 +1,4 @@
-name: Update LLM Perf Benchmarks - Intel OpenVINO
+name: Benchmark CPU Onnxruntime
 
 on:
   workflow_dispatch:
@@ -23,8 +23,8 @@ jobs:
       (github.event_name == 'workflow_dispatch') ||
       contains( github.event.pull_request.labels.*.name, 'leaderboard') ||
       contains( github.event.pull_request.labels.*.name, 'cpu') ||
-      contains( github.event.pull_request.labels.*.name, 'openvino') ||
-      contains( github.event.pull_request.labels.*.name, 'cpu_openvino')
+      contains( github.event.pull_request.labels.*.name, 'onnxruntime') ||
+      contains( github.event.pull_request.labels.*.name, 'cpu_onnxruntime')
       }}
 
     strategy:
@@ -63,5 +63,7 @@ jobs:
             --volume ${{ github.workspace }}:/workspace
             --workdir /workspace
           run: |
-            pip install -e .[openvino]
-            llm-perf --hardware cpu --backend openvino
+            pip install -e .[onnxruntime]
+            llm-perf --hardware cpu --backend onnxruntime
+            
+

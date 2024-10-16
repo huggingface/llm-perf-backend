@@ -1,4 +1,4 @@
-name: Update LLM Perf Benchmarks - CUDA PyTorch
+name: Benchmark CPU PyTorch
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
 
 env:
-  IMAGE: ghcr.io/huggingface/optimum-benchmark:latest-cuda
+  IMAGE: ghcr.io/huggingface/optimum-benchmark:latest-cpu
 
 jobs:
   run_benchmarks:
@@ -22,21 +22,17 @@ jobs:
       (github.event_name == 'push') ||
       (github.event_name == 'workflow_dispatch') ||
       contains( github.event.pull_request.labels.*.name, 'leaderboard') ||
-      contains( github.event.pull_request.labels.*.name, 'cuda') ||
+      contains( github.event.pull_request.labels.*.name, 'cpu') ||
       contains( github.event.pull_request.labels.*.name, 'pytorch') ||
-      contains( github.event.pull_request.labels.*.name, 'cuda_pytorch')
+      contains( github.event.pull_request.labels.*.name, 'cpu_pytorch')
       }}
 
     strategy:
       fail-fast: false
       matrix:
-        subset: [unquantized, bnb, awq, gptq]
-
+        subset: [unquantized]
         machine:
-          [
-            { name: 1xA10, runs-on: { group: "aws-g5-4xlarge-plus" } },
-            { name: 1xT4, runs-on: { group: "aws-g4dn-2xlarge" } },
-          ]
+          [{ name: 32vCPU-C7i, runs-on: { group: "aws-c7i-8xlarge-plus" } }]
 
     runs-on: ${{ matrix.machine.runs-on }}
 
@@ -54,7 +50,6 @@ jobs:
           image: ${{ env.IMAGE }}
           options: |
             --rm
-            --gpus all
             --shm-size 64G
             --env SUBSET
             --env MACHINE
@@ -64,9 +59,8 @@ jobs:
             --volume ${{ github.workspace }}:/workspace
             --workdir /workspace
           run: |
-          
-            pip install packaging && pip install flash-attn einops scipy auto-gptq optimum bitsandbytes autoawq codecarbon
+            pip install packaging && pip install einops scipy optimum codecarbon
             pip install -U transformers huggingface_hub[hf_transfer]
             pip install git+https://github.com/huggingface/optimum-benchmark.git
             pip install -e .
-            python src/benchmark_runners/cuda/update_llm_perf_cuda_pytorch.py
+            python src/benchmark_runners/cpu/update_llm_perf_cpu_pytorch.py
