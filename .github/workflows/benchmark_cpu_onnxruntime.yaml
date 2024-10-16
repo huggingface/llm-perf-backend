@@ -6,7 +6,7 @@ on:
     - cron: "0 0 * * *"
   push:
     branches:
-      - main
+      - '*'
   pull_request:
 
 concurrency:
@@ -18,14 +18,16 @@ env:
 
 jobs:
   run_benchmarks:
-    if: ${{
-      (github.event_name == 'push') ||
-      (github.event_name == 'workflow_dispatch') ||
-      contains( github.event.pull_request.labels.*.name, 'leaderboard') ||
-      contains( github.event.pull_request.labels.*.name, 'cpu') ||
-      contains( github.event.pull_request.labels.*.name, 'onnxruntime') ||
-      contains( github.event.pull_request.labels.*.name, 'cpu_onnxruntime')
-      }}
+    if: >-
+      (github.event_name == 'push' && contains(github.event.head_commit.message, 'cpu_onnxruntime')) ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && (
+        contains(github.event.pull_request.labels.*.name, 'leaderboard') ||
+        contains(github.event.pull_request.labels.*.name, 'cpu') ||
+        contains(github.event.pull_request.labels.*.name, 'onnxruntime') ||
+        contains(github.event.pull_request.labels.*.name, 'cpu_onnxruntime')
+      ))
 
     strategy:
       fail-fast: false
@@ -65,5 +67,3 @@ jobs:
           run: |
             pip install .[onnxruntime]
             llm-perf run-benchmark --hardware cpu --backend onnxruntime
-            
-
