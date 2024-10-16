@@ -64,6 +64,6 @@ jobs:
             --workdir /workspace
           run: |
             pip install .[onnxruntime]
-            llm-perf --hardware cpu --backend onnxruntime
+            llm-perf run-benchmark --hardware cpu --backend onnxruntime
             
 

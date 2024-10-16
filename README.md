@@ -9,7 +9,7 @@ git clone
 pip install -e .[openvino]
 
 ## How to use the cli 
-llm-perf --hardware cpu --backend openvino
-
+llm-perf run-benchmark --hardware cpu --backend openvino
+llm-perf run-benchmark --hardware cpu --backend pytorch
 
 https://huggingface.co/datasets/optimum-benchmark/llm-perf-leaderboard

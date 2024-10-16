@@ -64,4 +64,4 @@ jobs:
             --workdir /workspace
           run: |
             pip install .[openvino]
-            llm-perf --hardware cpu --backend openvino
+            llm-perf run-benchmark --hardware cpu --backend openvino
