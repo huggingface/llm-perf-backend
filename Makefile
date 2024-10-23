@@ -33,3 +33,11 @@ cpu-pytorch-container:
 	docker build -t cpu-pytorch -f docker/cpu-pytorch/Dockerfile .
 	# docker run -it --rm --pid host cpu-pytorch /bin/bash
 	docker run -it --rm --pid host cpu-pytorch
+
+collector-container:
+	docker build -t collector -f docker/collector/Dockerfile .
+	docker run -it --rm --pid host collector
+
+cpu-openvino-container:
+	docker build -t cpu-openvino -f docker/cpu-openvino/Dockerfile .
+	docker run -it --rm --pid host cpu-openvino
