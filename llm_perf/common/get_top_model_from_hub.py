@@ -7,7 +7,9 @@ import requests
 from datasets import Dataset
 
 
-def get_top_text_generation_models(n: int, sort: str = "downloads", direction: int = -1) -> List[Dict]:
+def get_top_text_generation_models(
+    n: int, sort: str = "downloads", direction: int = -1
+) -> List[Dict]:
     base_url = "https://huggingface.co/api/models"
     params = {
         "sort": sort,
@@ -62,14 +64,18 @@ def main():
     if huggingface_token:
         os.environ["HUGGINGFACE_HUB_TOKEN"] = huggingface_token
     else:
-        print("Warning: HUGGINGFACE_TOKEN not found in environment variables. Running without authentication.")
+        print(
+            "Warning: HUGGINGFACE_TOKEN not found in environment variables. Running without authentication."
+        )
 
     n = 100
     top_models = get_top_text_generation_models(n)
 
     print(f"\nTop {n} text generation models on Hugging Face Hub:")
     for i, model in enumerate(top_models, 1):
-        print(f"{i}. {model['organization']}/{model['model_name']}: {model['downloads']:,} downloads")
+        print(
+            f"{i}. {model['organization']}/{model['model_name']}: {model['downloads']:,} downloads"
+        )
 
     # Upload to Hugging Face dataset
     dataset_name = "optimum-benchmark/top-text-generation-models"

@@ -185,3 +185,5 @@ external_repos/
 outputs/
 .env
 wip/
+
+*.csv

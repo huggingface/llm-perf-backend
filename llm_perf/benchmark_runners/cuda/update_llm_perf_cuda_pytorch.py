@@ -6,8 +6,8 @@ from optimum_benchmark.benchmark.config import BenchmarkConfig
 from optimum_benchmark.launchers.process.config import ProcessConfig
 from optimum_benchmark.scenarios.inference.config import InferenceConfig
 
-from src.common.benchmark_runner import LLMPerfBenchmarkManager
-from src.common.utils import (
+from llm_perf.common.benchmark_runner import LLMPerfBenchmarkManager
+from llm_perf.common.utils import (
     CANONICAL_PRETRAINED_OPEN_LLM_LIST,
     GENERATE_KWARGS,
     INPUT_SHAPES,
@@ -19,7 +19,9 @@ class CUDAPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
         super().__init__(backend="pytorch", device="cuda")
 
         self.attention_configs = self._get_attention_configs()
-        assert self.subset is not None, "SUBSET environment variable must be set for benchmarking"
+        assert (
+            self.subset is not None
+        ), "SUBSET environment variable must be set for benchmarking"
         self.weights_configs = self._get_weights_configs(self.subset)
 
     def get_list_of_benchmarks_to_run(self) -> List[Dict[str, Any]]:
@@ -42,7 +44,10 @@ class CUDAPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
         return f"{model}-{weights_config}-{attn_implementation}-{self.backend}"
 
     def is_benchmark_supported(self, **kwargs) -> bool:
-        if kwargs["attn_implementation"] == "flash_attention_2" and kwargs["weights_config"] == "float32":
+        if (
+            kwargs["attn_implementation"] == "flash_attention_2"
+            and kwargs["weights_config"] == "float32"
+        ):
             return False
         return True
 
@@ -58,7 +63,9 @@ class CUDAPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
         quant_scheme = self.weights_configs[weights_config]["quant_scheme"]
         quant_config = self.weights_configs[weights_config]["quant_config"]
 
-        launcher_config = ProcessConfig(device_isolation=True, device_isolation_action="kill")
+        launcher_config = ProcessConfig(
+            device_isolation=True, device_isolation_action="kill"
+        )
         scenario_config = InferenceConfig(
             memory=True,
             energy=True,

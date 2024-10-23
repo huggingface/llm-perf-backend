@@ -1,10 +1,14 @@
 import pandas as pd
 
+from llm_perf.common.dependency import get_benchmark_top_n, is_debug_mode
+
 INPUT_SHAPES = {"batch_size": 1, "sequence_length": 256}
 GENERATE_KWARGS = {"max_new_tokens": 64, "min_new_tokens": 64}
 
 
-OPEN_LLM_LEADERBOARD = pd.read_csv("hf://datasets/optimum-benchmark/llm-perf-leaderboard/llm-df.csv")
+OPEN_LLM_LEADERBOARD = pd.read_csv(
+    "hf://datasets/optimum-benchmark/llm-perf-leaderboard/llm-df.csv"
+)
 OPEN_LLM_LIST = OPEN_LLM_LEADERBOARD.drop_duplicates(subset=["Model"])["Model"].tolist()
 PRETRAINED_OPEN_LLM_LIST = (
     OPEN_LLM_LEADERBOARD[OPEN_LLM_LEADERBOARD["Type"] == "pretrained"]
@@ -13,7 +17,7 @@ PRETRAINED_OPEN_LLM_LIST = (
 )
 
 
-def get_top_llm_list(n: int = 10) -> list:
+def get_top_llm_list(n: int = 10) -> list[str]:
     """
     Fetches the top n text generation models from the Hugging Face dataset.
 
@@ -36,7 +40,10 @@ def get_top_llm_list(n: int = 10) -> list:
         models_data = sorted(models_data, key=lambda x: x["downloads"], reverse=True)
 
         # Create the list of top models
-        top_models = [f"{model['organization']}/{model['model_name']}" for model in models_data[:n]]
+        top_models = [
+            f"{model['organization']}/{model['model_name']}"
+            for model in models_data[:n]
+        ]
 
         return top_models
     except Exception as e:
@@ -44,4 +51,10 @@ def get_top_llm_list(n: int = 10) -> list:
         return []
 
 
-CANONICAL_PRETRAINED_OPEN_LLM_LIST = get_top_llm_list(n=10)
+if is_debug_mode():
+    CANONICAL_PRETRAINED_OPEN_LLM_LIST = ["gpt2"]
+else:
+    CANONICAL_PRETRAINED_OPEN_LLM_LIST = get_top_llm_list(n=get_benchmark_top_n())
+    print(
+        f"Benchamrking the following {len(CANONICAL_PRETRAINED_OPEN_LLM_LIST)} models: {CANONICAL_PRETRAINED_OPEN_LLM_LIST}"
+    )

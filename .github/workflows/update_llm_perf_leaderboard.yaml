@@ -15,6 +15,13 @@ concurrency:
 
 jobs:
   update_llm_perf_leaderboard:
+    if: ${{
+      (github.event_name == 'push') ||
+      (github.event_name == 'workflow_dispatch') ||
+      contains( github.event.pull_request.labels.*.name, 'leaderboard') ||
+      contains( github.event.pull_request.labels.*.name, 'update_leaderboard')
+      }}
+
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -39,4 +46,5 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           HF_HUB_ENABLE_HF_TRANSFER: 1
         run: |
-          python src/update_llm_perf_leaderboard.py
+          pip install -e .
+          llm-perf update-leaderboard

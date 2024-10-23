@@ -1,25 +1,27 @@
 from itertools import product
 from typing import Any, Dict, List
 
-from optimum_benchmark import OVConfig
+from optimum_benchmark import ORTConfig
 from optimum_benchmark.benchmark.config import BenchmarkConfig
 from optimum_benchmark.launchers.process.config import ProcessConfig
 from optimum_benchmark.scenarios.inference.config import InferenceConfig
 
-from src.common.benchmark_runner import LLMPerfBenchmarkManager
-from src.common.utils import (
+from llm_perf.common.benchmark_runner import LLMPerfBenchmarkManager
+from llm_perf.common.utils import (
     CANONICAL_PRETRAINED_OPEN_LLM_LIST,
     GENERATE_KWARGS,
     INPUT_SHAPES,
 )
 
 
-class CPUOpenVINOBenchmarkRunner(LLMPerfBenchmarkManager):
+class CPUOnnxRuntimeBenchmarkRunner(LLMPerfBenchmarkManager):
     def __init__(self):
-        super().__init__(backend="openvino", device="cpu")
+        super().__init__(backend="onnxruntime", device="cpu")
 
         self.attention_configs = self._get_attention_configs()
-        assert self.subset is not None, "SUBSET environment variable must be set for benchmarking"
+        assert (
+            self.subset is not None
+        ), "SUBSET environment variable must be set for benchmarking"
         self.weights_configs = self._get_weights_configs(self.subset)
 
     def get_list_of_benchmarks_to_run(self) -> List[Dict[str, Any]]:
@@ -39,7 +41,7 @@ class CPUOpenVINOBenchmarkRunner(LLMPerfBenchmarkManager):
     def get_benchmark_name(self, model: str, **kwargs) -> str:
         weights_config = kwargs["weights_config"]
         attn_implementation = kwargs["attn_implementation"]
-        return f"{model}-{weights_config}-{attn_implementation}"
+        return f"{model}-{weights_config}-{attn_implementation}-{self.backend}"
 
     def get_benchmark_config(self, model: str, **kwargs) -> BenchmarkConfig:
         weights_config = kwargs["weights_config"]
@@ -49,6 +51,7 @@ class CPUOpenVINOBenchmarkRunner(LLMPerfBenchmarkManager):
             weights_config in self.weights_configs
         ), f"your config does not contain {weights_config}, adjust your _get_weights_configs to fix this issue"
 
+        torch_dtype = self.weights_configs[weights_config]["torch_dtype"]
         quant_config = self.weights_configs[weights_config]["quant_config"]
 
         launcher_config = ProcessConfig()
@@ -62,13 +65,14 @@ class CPUOpenVINOBenchmarkRunner(LLMPerfBenchmarkManager):
             input_shapes=INPUT_SHAPES,
             generate_kwargs=GENERATE_KWARGS,
         )
-        backend_config = OVConfig(
+        backend_config = ORTConfig(
             model=model,
             device="cpu",
             device_ids="0",
             no_weights=True,
             library="transformers",
             task="text-generation",
+            torch_dtype=torch_dtype,
             quantization_config=quant_config,
             model_kwargs={"trust_remote_code": True},
         )
@@ -107,5 +111,5 @@ class CPUOpenVINOBenchmarkRunner(LLMPerfBenchmarkManager):
 
 
 if __name__ == "__main__":
-    runner = CPUOpenVINOBenchmarkRunner()
+    runner = CPUOnnxRuntimeBenchmarkRunner()
     runner.run_benchmarks()

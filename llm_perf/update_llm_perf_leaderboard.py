@@ -4,15 +4,14 @@ from glob import glob
 import pandas as pd
 from huggingface_hub import create_repo, snapshot_download, upload_file
 from optimum_benchmark import Benchmark
-from tqdm import tqdm
 
-from src.common.hardware_config import load_hardware_configs
+from llm_perf.common.hardware_config import load_hardware_configs
 
 REPO_TYPE = "dataset"
 MAIN_REPO_ID = "optimum-benchmark/llm-perf-leaderboard"
 PERF_REPO_ID = "optimum-benchmark/llm-perf-{backend}-{hardware}-{subset}-{machine}"
 
-PERF_DF = "perf-df-{subset}-{machine}.csv"
+PERF_DF = "perf-df-{backend}-{hardware}-{subset}-{machine}.csv"
 LLM_DF = "llm-df.csv"
 
 
@@ -20,15 +19,21 @@ def gather_benchmarks(subset: str, machine: str, backend: str, hardware: str):
     """
     Gather the benchmarks for a given machine
     """
-    perf_repo_id = PERF_REPO_ID.format(subset=subset, machine=machine, backend=backend, hardware=hardware)
-    snapshot = snapshot_download(repo_type=REPO_TYPE, repo_id=perf_repo_id, allow_patterns=["**/benchmark.json"])
+    perf_repo_id = PERF_REPO_ID.format(
+        subset=subset, machine=machine, backend=backend, hardware=hardware
+    )
+    snapshot = snapshot_download(
+        repo_type=REPO_TYPE, repo_id=perf_repo_id, allow_patterns=["**/benchmark.json"]
+    )
 
     dfs = []
-    for file in tqdm(glob(f"{snapshot}/**/benchmark.json", recursive=True)):
+    for file in glob(f"{snapshot}/**/benchmark.json", recursive=True):
         dfs.append(Benchmark.from_json(file).to_dataframe())
     benchmarks = pd.concat(dfs, ignore_index=True)
 
-    perf_df = PERF_DF.format(subset=subset, machine=machine)
+    perf_df = PERF_DF.format(
+        subset=subset, machine=machine, backend=backend, hardware=hardware
+    )
     benchmarks.to_csv(perf_df, index=False)
     create_repo(repo_id=MAIN_REPO_ID, repo_type=REPO_TYPE, private=False, exist_ok=True)
     upload_file(
@@ -43,7 +48,7 @@ def update_perf_dfs():
     """
     Update the performance dataframes for all machines
     """
-    hardware_configs = load_hardware_configs("src/hardware.yaml")
+    hardware_configs = load_hardware_configs("llm_perf/hardware.yaml")
 
     for hardware_config in hardware_configs:
         for subset in hardware_config.subsets:
@@ -55,10 +60,17 @@ def update_perf_dfs():
                         backend,
                         hardware_config.hardware,
                     )
-                except Exception:
+                except Exception as e:
+                    print("Dataset not found for:")
+                    print(f"  • Backend: {backend}")
+                    print(f"  • Subset: {subset}")
+                    print(f"  • Machine: {hardware_config.machine}")
+                    print(f"  • Hardware Type: {hardware_config.hardware}")
+                    url = f"{PERF_REPO_ID.format(subset=subset, machine=hardware_config.machine, backend=backend, hardware=hardware_config.hardware)}"
                     print(
-                        f"benchmark for subset: {subset}, machine: {hardware_config.machine}, backend: {backend}, hardware: {hardware_config.hardware} not found"
+                        f"Check that URL exists: https://huggingface.co/datasets/{url}"
                     )
+                    raise e
 
 
 scrapping_script = """
@@ -83,6 +95,10 @@ def update_llm_df():
     )
 
 
-if __name__ == "__main__":
+def update_llm_perf_leaderboard():
     update_llm_df()
     update_perf_dfs()
+
+
+if __name__ == "__main__":
+    update_llm_perf_leaderboard()
