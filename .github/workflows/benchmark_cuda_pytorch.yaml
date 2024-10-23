@@ -53,7 +53,7 @@ jobs:
           SUBSET: ${{ matrix.subset }}
           MACHINE: ${{ matrix.machine.name }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          BENCHMARK_TOP_N: 3
+          BENCHMARK_TOP_N: 50
         with:
           image: ${{ env.IMAGE }}
           options: |

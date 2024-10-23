@@ -50,7 +50,7 @@ jobs:
           MACHINE: ${{ matrix.machine.name }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           DISABLE_WARNINGS: 1
-          BENCHMARK_TOP_N: 3
+          BENCHMARK_TOP_N: 50
         with:
           image: ${{ env.IMAGE }}
           options: |

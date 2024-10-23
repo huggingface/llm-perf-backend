@@ -34,3 +34,5 @@
     - unquantized
   backends:
     - pytorch
+    - openvino
+    - onnxruntime

@@ -52,7 +52,7 @@ def get_top_llm_list(n: int = 10) -> list[str]:
 
 
 if is_debug_mode():
-    CANONICAL_PRETRAINED_OPEN_LLM_LIST = ["gpt2"]
+    CANONICAL_PRETRAINED_OPEN_LLM_LIST = ["bigscience/bloomz-560m"]
 else:
     CANONICAL_PRETRAINED_OPEN_LLM_LIST = get_top_llm_list(n=get_benchmark_top_n())
     print(
