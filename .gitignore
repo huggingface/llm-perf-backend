@@ -188,3 +188,4 @@ wip/
 
 *.csv
 optimum-benchmark/
+pyrsmi/
