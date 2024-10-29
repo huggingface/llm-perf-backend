@@ -14,6 +14,7 @@ INSTALL_REQUIRES = [
     "huggingface_hub[hf_transfer]",
     "datasets>=2.14.6",
     "beautifulsoup4",
+
     "optimum-benchmark @ git+https://github.com/huggingface/optimum-benchmark.git",
 ]
 
@@ -33,6 +34,10 @@ EXTRAS_REQUIRE = {
         "bitsandbytes",
         "autoawq",
     ],
+    "dashboard": [
+        "gradio>=5.0.0",
+        "sentence-transformers",
+    ]
 }
 
 setup(
