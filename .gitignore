@@ -189,3 +189,6 @@ wip/
 *.csv
 optimum-benchmark/
 pyrsmi/
+
+requirements-dev.lock
+requirements.lock
