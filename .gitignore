@@ -188,3 +188,5 @@ wip/
 
 *.csv
 optimum-benchmark/
+
+*.egg-info/
