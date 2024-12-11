@@ -4,7 +4,6 @@ from glob import glob
 import pandas as pd
 from huggingface_hub import create_repo, snapshot_download, upload_file, repo_exists
 from optimum_benchmark import Benchmark
-import requests
 import json
 
 from llm_perf.common.hardware_config import load_hardware_configs
@@ -18,6 +17,7 @@ PERF_REPO_ID = "optimum-benchmark/llm-perf-{backend}-{hardware}-{subset}-{machin
 
 PERF_DF = "perf-df-{backend}-{hardware}-{subset}-{machine}.csv"
 LLM_DF = "llm-df.csv"
+
 
 def patch_json(file):
     """
@@ -37,7 +37,7 @@ def patch_json(file):
     """
     with open(file, "r") as f:
         data = json.load(f)
-    
+
     def add_stdev_(obj):
         if isinstance(obj, dict):
             new_items = []
@@ -53,9 +53,10 @@ def patch_json(file):
                 add_stdev_(item)
 
     add_stdev_(data)
-    
+
     with open(file, "w") as f:
         json.dump(data, f, indent=4)
+
 
 def gather_benchmarks(subset: str, machine: str, backend: str, hardware: str):
     """
@@ -99,7 +100,6 @@ def gather_benchmarks(subset: str, machine: str, backend: str, hardware: str):
 #     return response.status_code == 200
 
 
-
 def update_perf_dfs():
     """
     Update the performance dataframes for all machines
@@ -116,19 +116,18 @@ def update_perf_dfs():
                         backend,
                         hardware_config.hardware,
                     )
-                except Exception as e:
+                except Exception:
                     print("Dataset not found for:")
                     print(f"  • Backend: {backend}")
                     print(f"  • Subset: {subset}")
                     print(f"  • Machine: {hardware_config.machine}")
                     print(f"  • Hardware Type: {hardware_config.hardware}")
                     url = f"{PERF_REPO_ID.format(subset=subset, machine=hardware_config.machine, backend=backend, hardware=hardware_config.hardware)}"
-                    
+
                     does_exist = repo_exists(url, repo_type="dataset")
 
                     if does_exist:
                         print(f"Dataset exists: {url} but could not be processed")
-                    
 
 
 scrapping_script = """
