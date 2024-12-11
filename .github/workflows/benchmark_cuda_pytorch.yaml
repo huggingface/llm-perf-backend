@@ -33,7 +33,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        subset: [unquantized, bnb, awq, gptq]
+        subset: [unquantized, bnb, awq, gptq, torchao]
 
         machine:
           [
