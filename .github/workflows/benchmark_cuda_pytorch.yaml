@@ -3,10 +3,7 @@ name: Benchmark CUDA PyTorch
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"
-  push:
-    branches:
-      - '*'
+    - cron: "0 3 * * *"
   pull_request:
 
 concurrency:
@@ -33,7 +30,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        subset: [unquantized, bnb, awq, gptq]
+        subset: [torchao]
 
         machine:
           [

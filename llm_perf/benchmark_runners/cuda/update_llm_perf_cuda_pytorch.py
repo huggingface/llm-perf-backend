@@ -191,6 +191,17 @@ class CUDAPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
                     },
                 },
             }
+        elif subset == "torchao":
+            return {
+                "torchao-int4wo-128": {
+                    "torch_dtype": "bfloat16",
+                    "quant_scheme": "torchao",
+                    "quant_config": {
+                        "quant_type": "int4_weight_only",
+                        "group_size": 128,
+                    },
+                },
+            }
         else:
             raise ValueError(f"Unknown subset: {subset}")
 

@@ -32,6 +32,7 @@ EXTRAS_REQUIRE = {
         "auto-gptq",
         "bitsandbytes",
         "autoawq",
+        "torchao",
     ],
 }
 

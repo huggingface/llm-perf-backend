@@ -3,10 +3,7 @@ name: Benchmark CPU Onnxruntime
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 0 * * *"
-  push:
-    branches:
-      - '*'
+    - cron: "0 12 * * *"
   pull_request:
 
 concurrency:
