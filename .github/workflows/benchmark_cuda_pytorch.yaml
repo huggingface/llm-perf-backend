@@ -3,7 +3,7 @@ name: Benchmark CUDA PyTorch
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 3 * * *"
+    - cron: "0 3 * * 0"
   pull_request:
 
 concurrency:
