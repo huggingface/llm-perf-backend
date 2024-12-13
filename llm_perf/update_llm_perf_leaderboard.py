@@ -1,5 +1,6 @@
 import subprocess
 from glob import glob
+import os
 
 import pandas as pd
 from huggingface_hub import create_repo, snapshot_download, upload_file, repo_exists
@@ -15,8 +16,12 @@ REPO_TYPE = "dataset"
 MAIN_REPO_ID = "optimum-benchmark/llm-perf-leaderboard"
 PERF_REPO_ID = "optimum-benchmark/llm-perf-{backend}-{hardware}-{subset}-{machine}"
 
-PERF_DF = "perf-df-{backend}-{hardware}-{subset}-{machine}.csv"
-LLM_DF = "llm-df.csv"
+DATA_DIR = "data"
+PERF_DF = os.path.join(DATA_DIR, "perf-df-{backend}-{hardware}-{subset}-{machine}.csv")
+LLM_DF = os.path.join(DATA_DIR, "llm-df.csv")
+
+# Create data directory if it doesn't exist
+os.makedirs(DATA_DIR, exist_ok=True)
 
 
 def patch_json(file):
@@ -104,6 +109,7 @@ def update_perf_dfs():
     """
     Update the performance dataframes for all machines
     """
+
     hardware_configs = load_hardware_configs("llm_perf/hardware.yaml")
 
     for hardware_config in hardware_configs:
@@ -130,18 +136,18 @@ def update_perf_dfs():
                         print(f"Dataset exists: {url} but could not be processed")
 
 
-scrapping_script = """
-git clone https://github.com/Weyaxi/scrape-open-llm-leaderboard.git
-pip install -r scrape-open-llm-leaderboard/requirements.txt -q
-python scrape-open-llm-leaderboard/main.py
-rm -rf scrape-open-llm-leaderboard
-"""
-
-
 def update_llm_df():
     """
     Scrape the open-llm-leaderboard and update the leaderboard dataframe
     """
+    
+    scrapping_script = """
+    git clone https://github.com/Weyaxi/scrape-open-llm-leaderboard.git
+    pip install -r scrape-open-llm-leaderboard/requirements.txt -q
+    python scrape-open-llm-leaderboard/main.py
+    rm -rf scrape-open-llm-leaderboard
+    """
+    
     subprocess.run(scrapping_script, shell=True)
     create_repo(repo_id=MAIN_REPO_ID, repo_type=REPO_TYPE, exist_ok=True, private=False)
     upload_file(
@@ -153,7 +159,7 @@ def update_llm_df():
 
 
 def update_llm_perf_leaderboard():
-    update_llm_df()
+    # update_llm_df() # TO FIX: open-llm scraper is broken otherwise use https://huggingface.co/datasets/open-llm-leaderboard/contents directly
     update_perf_dfs()
 
 

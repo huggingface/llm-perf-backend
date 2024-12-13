@@ -190,3 +190,4 @@ wip/
 optimum-benchmark/
 
 *.egg-info/
+data/
