@@ -76,6 +76,7 @@ class LLMPerfBenchmarkManager(ABC):
     def run_benchmarks(self):
         os.environ["LOG_TO_FILE"] = "0"
         os.environ["LOG_LEVEL"] = "INFO"
+        
         setup_logging(level="INFO", prefix="MAIN-PROCESS")
 
         benchmarks_to_run = self.get_list_of_benchmarks_to_run()
@@ -84,11 +85,13 @@ class LLMPerfBenchmarkManager(ABC):
             f"Running a total of {len(benchmarks_to_run)} benchmarks, "
             f"with {len(CANONICAL_PRETRAINED_OPEN_LLM_LIST)} models"
         )
+        
+        skip_if_already_conducted = os.getenv("SKIP_IF_ALREADY_CONDUCTED", "false") == "true"
+        raise ValueError(f"skip_if_already_conducted: {skip_if_already_conducted}")
 
         for benchmark_name in benchmarks_to_run:
             assert "model" in benchmark_name, "each benchmark should have a model"
-
-            self.run_benchmark(**benchmark_name)
+            self.run_benchmark(skip_if_already_conducted=skip_if_already_conducted, **benchmark_name)
 
     def is_benchmark_conducted(self, push_repo_id, subfolder):
         try:
@@ -108,7 +111,7 @@ class LLMPerfBenchmarkManager(ABC):
             "This method should be implemented in the child class"
         )
 
-    def run_benchmark(self, **kwargs):
+    def run_benchmark(self, skip_if_already_conducted: bool = True, **kwargs):
         model = kwargs.pop("model")
 
         benchmark_name = self.get_benchmark_name(model, **kwargs)
@@ -120,7 +123,7 @@ class LLMPerfBenchmarkManager(ABC):
             )
             return
 
-        if self.is_benchmark_conducted(self.push_repo_id, subfolder):
+        if skip_if_already_conducted and self.is_benchmark_conducted(self.push_repo_id, subfolder):
             self.logger.info(
                 f"Skipping benchmark {benchmark_name} with model {model} since it was already conducted"
             )

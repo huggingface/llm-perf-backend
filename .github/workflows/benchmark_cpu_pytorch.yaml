@@ -2,6 +2,12 @@ name: Benchmark CPU PyTorch
 
 on:
   workflow_dispatch:
+    inputs:
+      skip_if_already_conducted:
+        description: 'Skip benchmarks if already conducted'
+        required: false
+        type: boolean
+        default: false
   schedule:
     - cron: "0 0 * * *"
   pull_request:
