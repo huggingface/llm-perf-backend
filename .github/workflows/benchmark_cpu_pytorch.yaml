@@ -3,9 +3,9 @@ name: Benchmark CPU PyTorch
 on:
   workflow_dispatch:
     inputs:
-      skip_if_already_conducted:
-        description: 'Skip benchmarks if already conducted'
-        required: false
+      rerun_already_conducted_benchmarks:
+        description: 'Rerun benchmarks that were already conducted'
+        required: true
         type: boolean
         default: false
   schedule:
@@ -53,7 +53,7 @@ jobs:
           MACHINE: ${{ matrix.machine.name }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           BENCHMARK_TOP_N: 50
-          SKIP_IF_ALREADY_CONDUCTED: ${{ github.event.inputs.skip_if_already_conducted }}
+          RERUN_ALREADY_CONDUCTED_BENCHMARKS: ${{ github.event.inputs.rerun_already_conducted_benchmarks }}
         with:
           image: ${{ env.IMAGE }}
           options: |
