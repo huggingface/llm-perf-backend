@@ -87,9 +87,7 @@ class LLMPerfBenchmarkManager(ABC):
         )
         
 
-        rerun_already_conducted_benchmarks = os.environ["RERUN_ALREADY_CONDUCTED_BENCHMARKS"]
-        # rerun_already_conducted_benchmarks = os.getenv("RERUN_ALREADY_CONDUCTED_BENCHMARKS", "false") == "true"
-        raise ValueError(f"rerun_already_conducted_benchmarks: {rerun_already_conducted_benchmarks}")
+        rerun_already_conducted_benchmarks = os.getenv("RERUN_ALREADY_CONDUCTED_BENCHMARKS", "false") == "true"
 
         for benchmark_name in benchmarks_to_run:
             assert "model" in benchmark_name, "each benchmark should have a model"
