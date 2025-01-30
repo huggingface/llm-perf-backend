@@ -85,6 +85,8 @@ class LLMPerfBenchmarkManager(ABC):
             f"Running a total of {len(benchmarks_to_run)} benchmarks, "
             f"with {len(CANONICAL_PRETRAINED_OPEN_LLM_LIST)} models"
         )
+        
+
         rerun_already_conducted_benchmarks = os.environ["RERUN_ALREADY_CONDUCTED_BENCHMARKS"]
         # rerun_already_conducted_benchmarks = os.getenv("RERUN_ALREADY_CONDUCTED_BENCHMARKS", "false") == "true"
         raise ValueError(f"rerun_already_conducted_benchmarks: {rerun_already_conducted_benchmarks}")
