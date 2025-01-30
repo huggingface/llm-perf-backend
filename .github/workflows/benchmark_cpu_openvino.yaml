@@ -2,6 +2,12 @@ name: Benchmark CPU OpenVINO
 
 on:
   workflow_dispatch:
+     inputs:
+      skip_if_already_conducted:
+        description: 'Skip benchmarks if already conducted'
+        required: false
+        type: boolean
+        default: false
   schedule:
     - cron: "0 0 * * *"
   pull_request:
@@ -48,6 +54,7 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           DISABLE_WARNINGS: 1
           BENCHMARK_TOP_N: 50
+          SKIP_IF_ALREADY_CONDUCTED: ${{ github.event.inputs.skip_if_already_conducted }}
         with:
           image: ${{ env.IMAGE }}
           options: |

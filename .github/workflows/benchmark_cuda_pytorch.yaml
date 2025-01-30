@@ -57,6 +57,7 @@ jobs:
           MACHINE: ${{ matrix.machine.name }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           BENCHMARK_TOP_N: 50
+          SKIP_IF_ALREADY_CONDUCTED: ${{ github.event.inputs.skip_if_already_conducted }}
         with:
           image: ${{ env.IMAGE }}
           options: |
