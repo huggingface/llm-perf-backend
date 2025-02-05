@@ -4,6 +4,7 @@ import traceback
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 import subprocess
+import traceback
 
 from loguru import logger
 from optimum_benchmark import Benchmark, BenchmarkConfig, BenchmarkReport
@@ -27,7 +28,7 @@ class LLMPerfBenchmarkManager(ABC):
         self.device = device
         self.subset = subset or os.getenv("SUBSET", None)
         self.machine = machine or os.getenv("MACHINE", None)
-
+        
         if self.machine is None and self.subset is None:
             self.push_repo_id = (
                 f"optimum-benchmark/llm-perf-{self.backend}-{self.device}-debug"
@@ -41,9 +42,7 @@ class LLMPerfBenchmarkManager(ABC):
                 "Either both MACHINE and SUBSET should be set for benchmarking or neither for debugging"
             )
 
-        logger.info(f"len(OPEN_LLM_LIST): {len(OPEN_LLM_LIST)}")
-        logger.info(f"len(PRETRAINED_OPEN_LLM_LIST): {len(PRETRAINED_OPEN_LLM_LIST)}")
-        logger.info(f"len(CANONICAL_PRETRAINED_OPEN_LLM_LIST): {len(CANONICAL_PRETRAINED_OPEN_LLM_LIST)}")
+        logger.info(f"Starting benchmark runner with backend: {self.backend}, device: {self.device}, subset: {self.subset}, machine: {self.machine}")
 
     @abstractmethod
     def _get_weights_configs(self, subset: str) -> Dict[str, Dict[str, Any]]:
@@ -78,27 +77,15 @@ import sys
 import os
 from {self.__class__.__module__} import {self.__class__.__name__}
 from loguru import logger
-
-# Initialize e to None at the top level
+import traceback
 
 try:
-    # Set environment variables
-    if "{self.subset}":
-        os.environ['SUBSET'] = "{self.subset}"
-    if "{self.machine}":
-        os.environ['MACHINE'] = "{self.machine}"
-    
-    # Disable file logging for optimum-benchmark
-    os.environ['LOG_TO_FILE'] = '0'
-    
     runner = {self.__class__.__name__}()
-    runner.backend = "{self.backend}"
-    runner.device = "{self.device}"
     
     runner.run_benchmark(model="{model}", **{kwargs})
     sys.exit(0)
-except Exception as e:
-    logger.error(f"Error in subprocess: {str(e)}")
+except Exception:
+    logger.error("Error in subprocess:" + "\\n" + traceback.format_exc())
     sys.exit(1)
 """
 
@@ -108,7 +95,7 @@ except Exception as e:
                 text=True,
                 env={**os.environ, 
                      "PYTHONUNBUFFERED": "1",
-                     "LOG_TO_FILE": "0"  # Also set in parent environment
+                     "LOG_TO_FILE": "0"  # Disable file logging for optimum-benchmark
                 },
                 timeout=3600  # 1 hour timeout
             )
@@ -118,8 +105,8 @@ except Exception as e:
         except subprocess.TimeoutExpired:
             logger.error(f"Benchmark timed out for model {model}")
             return False
-        except Exception as e:
-            logger.error(f"Failed to run benchmark process: {str(e)}")
+        except Exception:
+            logger.error("Failed to run benchmark process:" + "\n" + traceback.format_exc())
             return False
 
     def run_benchmarks(self):
