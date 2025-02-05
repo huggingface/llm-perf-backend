@@ -23,6 +23,8 @@ from loguru import logger
 
 if os.environ.get("DISABLE_WARNINGS", "0") == "1":
     warnings.filterwarnings("ignore")
+    
+os.environ["CI"] = "GITHUB_ACTIONS"
 
 app = typer.Typer()
 

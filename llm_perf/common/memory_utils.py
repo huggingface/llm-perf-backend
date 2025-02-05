@@ -27,6 +27,7 @@ class MemoryTracker:
         }
         self.consecutive_increases = 0
         self.last_memory: Optional[Dict] = None
+        self.before_memory: Optional[Dict] = None  # Store memory state before benchmark
 
     def get_gpu_memory_info(self):
         """Get GPU memory usage if CUDA is available"""
@@ -119,7 +120,7 @@ class MemoryTracker:
         if not self.initial_memory:
             self.initial_memory = current_memory
 
-    def log_memory_usage(self):
+    def log_memory_usage(self, phase: str = "current"):
         """Log current memory usage for both CPU and GPU"""
         # Force garbage collection
         gc.collect()
@@ -134,27 +135,46 @@ class MemoryTracker:
         self.check_thresholds(cpu_info, gpu_info)
         self.check_persistent_growth(cpu_info, gpu_info)
         
+        # Store before memory state
+        if phase == "before":
+            self.before_memory = {
+                'cpu': cpu_info,
+                'gpu': gpu_info
+            }
+            prefix = "Before benchmark -"
+        elif phase == "after" and self.before_memory:
+            prefix = "After benchmark -"
+        else:
+            prefix = "Current -"
+        
         # Log CPU memory
         if cpu_info:
-            logger.info(
-                f"CPU Memory - RSS: {cpu_info['rss']:.2f}MB, "
-                f"VMS: {cpu_info['vms']:.2f}MB, "
-                f"Percent: {cpu_info['percent']:.1f}%"
-            )
+            cpu_msg = f"{prefix} CPU Memory - RSS: {cpu_info['rss']:.2f}MB, VMS: {cpu_info['vms']:.2f}MB, Percent: {cpu_info['percent']:.1f}%"
+            
+            # Add delta if we're in after phase
+            if phase == "after" and self.before_memory and self.before_memory['cpu']:
+                before_cpu = self.before_memory['cpu']
+                cpu_msg += f" (Δ RSS: {cpu_info['rss'] - before_cpu['rss']:+.2f}MB, Δ VMS: {cpu_info['vms'] - before_cpu['vms']:+.2f}MB, Δ %: {cpu_info['percent'] - before_cpu['percent']:+.1f})"
+            
+            logger.info(cpu_msg)
         
         # Log GPU memory if available
         if gpu_info:
             for device in gpu_info:
-                logger.info(
-                    f"GPU {device['device']} Memory - "
-                    f"Allocated: {device['allocated']:.2f}MB, "
-                    f"Reserved: {device['reserved']:.2f}MB"
-                )
+                gpu_msg = f"{prefix} GPU {device['device']} Memory - Allocated: {device['allocated']:.2f}MB, Reserved: {device['reserved']:.2f}MB"
+                
+                # Add delta if we're in after phase
+                if phase == "after" and self.before_memory and self.before_memory['gpu']:
+                    before_gpu = next((g for g in self.before_memory['gpu'] if g['device'] == device['device']), None)
+                    if before_gpu:
+                        gpu_msg += f" (Δ Allocated: {device['allocated'] - before_gpu['allocated']:+.2f}MB, Δ Reserved: {device['reserved'] - before_gpu['reserved']:+.2f}MB)"
+                
+                logger.info(gpu_msg)
 
 # Create a global memory tracker instance
 memory_tracker = MemoryTracker()
 
 # Function to use in other modules
-def log_memory_usage():
+def log_memory_usage(phase: str = "current"):
     """Global function to log memory usage"""
-    memory_tracker.log_memory_usage() 
+    memory_tracker.log_memory_usage(phase) 

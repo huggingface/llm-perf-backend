@@ -134,7 +134,7 @@ except Exception:
             try:
                 # Log memory before benchmark
                 logger.info("Memory usage before benchmark:")
-                log_memory_usage()
+                log_memory_usage("before")
                 
                 model = benchmark_config.pop("model")  # Remove model from kwargs
                 benchmark_name = self.get_benchmark_name(model, **benchmark_config)
@@ -146,7 +146,8 @@ except Exception:
                         benchmark_config["model"] = model  # Restore model key
                         completed_benchmarks += 1
                         skipped_benchmarks += 1
-                        logger.info(f"Progress: {completed_benchmarks}/{total_benchmarks} benchmarks completed ({(completed_benchmarks/total_benchmarks)*100:.1f}%)")
+                        success_rate = ((completed_benchmarks - failed_benchmarks) / completed_benchmarks) * 100 if completed_benchmarks > 0 else 100
+                        logger.info(f"Progress: {completed_benchmarks}/{total_benchmarks} benchmarks completed ({(completed_benchmarks/total_benchmarks)*100:.1f}%) - Current success rate: {success_rate:.1f}%")
                         continue
                 
                 logger.info(f"Starting benchmark for model {model} with config: {benchmark_config}")
@@ -163,11 +164,12 @@ except Exception:
                     failed_models.append(model)
                 
                 completed_benchmarks += 1
-                logger.info(f"Progress: {completed_benchmarks}/{total_benchmarks} benchmarks completed ({(completed_benchmarks/total_benchmarks)*100:.1f}%)")
+                success_rate = ((completed_benchmarks - failed_benchmarks) / completed_benchmarks) * 100 if completed_benchmarks > 0 else 100
+                logger.info(f"Progress: {completed_benchmarks}/{total_benchmarks} benchmarks completed ({(completed_benchmarks/total_benchmarks)*100:.1f}%) - Current success rate: {success_rate:.1f}%")
                 
                 # Log memory after benchmark
                 logger.info("Memory usage after benchmark:")
-                log_memory_usage()
+                log_memory_usage("after")
                 
             except Exception as e:
                 logger.error(f"Failed to run benchmark for {model}: {str(e)}")
@@ -261,7 +263,7 @@ except Exception:
     ):
         try:
             logger.info("Memory usage before execution:")
-            log_memory_usage()
+            log_memory_usage("before")
             
             logger.info(
                 f"Running benchmark {benchmark_config.name} with model {benchmark_config.backend.model}"
@@ -276,7 +278,7 @@ except Exception:
             )
             
             logger.info("Memory usage after execution:")
-            log_memory_usage()
+            log_memory_usage("after")
             
         except Exception as e:
             logger.error(
