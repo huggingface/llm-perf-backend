@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 import subprocess
 import traceback
+import time
 
 from loguru import logger
 from optimum_benchmark import Benchmark, BenchmarkConfig, BenchmarkReport
@@ -124,6 +125,10 @@ except Exception:
 
         total_benchmarks = len(benchmarks_to_run)
         completed_benchmarks = 0
+        failed_benchmarks = 0
+        skipped_benchmarks = 0
+        failed_models = []
+        start_time = time.time()
 
         for benchmark_config in benchmarks_to_run:
             try:
@@ -140,6 +145,7 @@ except Exception:
                         logger.info(f"Skipping already conducted benchmark: {benchmark_name}")
                         benchmark_config["model"] = model  # Restore model key
                         completed_benchmarks += 1
+                        skipped_benchmarks += 1
                         logger.info(f"Progress: {completed_benchmarks}/{total_benchmarks} benchmarks completed ({(completed_benchmarks/total_benchmarks)*100:.1f}%)")
                         continue
                 
@@ -153,6 +159,8 @@ except Exception:
                 
                 if not success:
                     logger.error(f"Benchmark failed for model {model}")
+                    failed_benchmarks += 1
+                    failed_models.append(model)
                 
                 completed_benchmarks += 1
                 logger.info(f"Progress: {completed_benchmarks}/{total_benchmarks} benchmarks completed ({(completed_benchmarks/total_benchmarks)*100:.1f}%)")
@@ -164,9 +172,41 @@ except Exception:
             except Exception as e:
                 logger.error(f"Failed to run benchmark for {model}: {str(e)}")
                 logger.error(traceback.format_exc())
+                failed_benchmarks += 1
+                failed_models.append(model)
             finally:
                 # Restore model key in case the config is reused
                 benchmark_config["model"] = model
+
+        # Calculate execution time
+        total_time = time.time() - start_time
+        hours = int(total_time // 3600)
+        minutes = int((total_time % 3600) // 60)
+        seconds = int(total_time % 60)
+
+        # Print summary
+        logger.info("\n" + "="*50)
+        logger.info("BENCHMARK EXECUTION SUMMARY")
+        logger.info("="*50)
+        logger.info(f"Total execution time: {hours}h {minutes}m {seconds}s")
+        logger.info(f"Total benchmarks: {total_benchmarks}")
+        logger.info(f"Successfully completed: {completed_benchmarks - failed_benchmarks}")
+        logger.info(f"Failed: {failed_benchmarks}")
+        logger.info(f"Skipped (already conducted): {skipped_benchmarks}")
+        logger.info(f"Success rate: {((completed_benchmarks - failed_benchmarks) / total_benchmarks) * 100:.1f}%")
+        
+        if failed_models:
+            logger.info("\nFailed models:")
+            for model in failed_models:
+                logger.info(f"  - {model}")
+        
+        logger.info("\nConfiguration:")
+        logger.info(f"  Backend: {self.backend}")
+        logger.info(f"  Device: {self.device}")
+        logger.info(f"  Subset: {self.subset}")
+        logger.info(f"  Machine: {self.machine}")
+        logger.info(f"  Rerun already conducted: {rerun_already_conducted_benchmarks}")
+        logger.info("="*50 + "\n")
 
     def is_benchmark_conducted(self, push_repo_id, subfolder):
         try:
