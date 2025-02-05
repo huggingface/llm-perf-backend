@@ -14,7 +14,9 @@ INSTALL_REQUIRES = [
     "huggingface_hub[hf_transfer]",
     "datasets>=2.14.6",
     "beautifulsoup4",
+    "loguru",
     "optimum-benchmark @ git+https://github.com/huggingface/optimum-benchmark.git",
+    "psutil",
 ]
 
 # Optional dependencies

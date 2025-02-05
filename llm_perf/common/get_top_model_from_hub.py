@@ -5,6 +5,7 @@ from typing import Dict, List
 
 import requests
 from datasets import Dataset
+from loguru import logger
 
 
 def get_top_text_generation_models(
@@ -42,7 +43,7 @@ def get_top_text_generation_models(
 def save_to_json(data: List[Dict], filename: str):
     with open(filename, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
-    print(f"Data saved to {filename}")
+    logger.info(f"Data saved to {filename}")
 
 
 def compute_org_downloads(models: List[Dict]) -> Dict[str, int]:
@@ -55,7 +56,7 @@ def compute_org_downloads(models: List[Dict]) -> Dict[str, int]:
 def upload_to_hf_dataset(data: List[Dict], dataset_name: str):
     dataset = Dataset.from_list(data)
     dataset.push_to_hub(dataset_name)
-    print(f"Data uploaded to Hugging Face dataset: {dataset_name}")
+    logger.info(f"Data uploaded to Hugging Face dataset: {dataset_name}")
 
 
 def main():
@@ -64,16 +65,16 @@ def main():
     if huggingface_token:
         os.environ["HUGGINGFACE_HUB_TOKEN"] = huggingface_token
     else:
-        print(
+        logger.warning(
             "Warning: HUGGINGFACE_TOKEN not found in environment variables. Running without authentication."
         )
 
     n = 100
     top_models = get_top_text_generation_models(n)
 
-    print(f"\nTop {n} text generation models on Hugging Face Hub:")
+    logger.info(f"\nTop {n} text generation models on Hugging Face Hub:")
     for i, model in enumerate(top_models, 1):
-        print(
+        logger.info(
             f"{i}. {model['organization']}/{model['model_name']}: {model['downloads']:,} downloads"
         )
 
@@ -82,11 +83,11 @@ def main():
     upload_to_hf_dataset(top_models, dataset_name)
 
     # Display top 10 organizations by downloads
-    print("\nTop 10 organizations by total downloads:")
+    logger.info("\nTop 10 organizations by total downloads:")
     org_downloads = compute_org_downloads(top_models)
     sorted_orgs = sorted(org_downloads.items(), key=lambda x: x[1], reverse=True)[:10]
     for i, (org, downloads) in enumerate(sorted_orgs, 1):
-        print(f"{i}. {org}: {downloads:,} downloads")
+        logger.info(f"{i}. {org}: {downloads:,} downloads")
 
 
 if __name__ == "__main__":

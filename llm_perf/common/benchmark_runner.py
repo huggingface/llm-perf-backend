@@ -1,18 +1,19 @@
 import os
+import sys
 import traceback
 from abc import ABC, abstractmethod
-from logging import getLogger
 from typing import Any, Dict, List, Optional
+import subprocess
 
+from loguru import logger
 from optimum_benchmark import Benchmark, BenchmarkConfig, BenchmarkReport
-from optimum_benchmark.logging_utils import setup_logging
 
 from llm_perf.common.utils import (
     CANONICAL_PRETRAINED_OPEN_LLM_LIST,
     OPEN_LLM_LIST,
     PRETRAINED_OPEN_LLM_LIST,
 )
-
+from llm_perf.common.memory_utils import log_memory_usage
 
 class LLMPerfBenchmarkManager(ABC):
     def __init__(
@@ -26,7 +27,6 @@ class LLMPerfBenchmarkManager(ABC):
         self.device = device
         self.subset = subset or os.getenv("SUBSET", None)
         self.machine = machine or os.getenv("MACHINE", None)
-        self.logger = getLogger("llm-perf-backend")
 
         if self.machine is None and self.subset is None:
             self.push_repo_id = (
@@ -41,13 +41,9 @@ class LLMPerfBenchmarkManager(ABC):
                 "Either both MACHINE and SUBSET should be set for benchmarking or neither for debugging"
             )
 
-        self.logger.info(f"len(OPEN_LLM_LIST): {len(OPEN_LLM_LIST)}")
-        self.logger.info(
-            f"len(PRETRAINED_OPEN_LLM_LIST): {len(PRETRAINED_OPEN_LLM_LIST)}"
-        )
-        self.logger.info(
-            f"len(CANONICAL_PRETRAINED_OPEN_LLM_LIST): {len(CANONICAL_PRETRAINED_OPEN_LLM_LIST)}"
-        )
+        logger.info(f"len(OPEN_LLM_LIST): {len(OPEN_LLM_LIST)}")
+        logger.info(f"len(PRETRAINED_OPEN_LLM_LIST): {len(PRETRAINED_OPEN_LLM_LIST)}")
+        logger.info(f"len(CANONICAL_PRETRAINED_OPEN_LLM_LIST): {len(CANONICAL_PRETRAINED_OPEN_LLM_LIST)}")
 
     @abstractmethod
     def _get_weights_configs(self, subset: str) -> Dict[str, Dict[str, Any]]:
@@ -73,25 +69,117 @@ class LLMPerfBenchmarkManager(ABC):
             "This method should be implemented in the child class"
         )
 
-    def run_benchmarks(self):
-        os.environ["LOG_TO_FILE"] = "0"
-        os.environ["LOG_LEVEL"] = "INFO"
+    def run_single_benchmark_in_subprocess(self, model: str, **kwargs) -> bool:
+        """Run a single benchmark in a separate process"""
+        try:
+            # Create the Python script to run in subprocess
+            script = f"""
+import sys
+import os
+from {self.__class__.__module__} import {self.__class__.__name__}
+from loguru import logger
+
+# Initialize e to None at the top level
+
+try:
+    # Set environment variables
+    if "{self.subset}":
+        os.environ['SUBSET'] = "{self.subset}"
+    if "{self.machine}":
+        os.environ['MACHINE'] = "{self.machine}"
+    
+    # Disable file logging for optimum-benchmark
+    os.environ['LOG_TO_FILE'] = '0'
+    
+    runner = {self.__class__.__name__}()
+    runner.backend = "{self.backend}"
+    runner.device = "{self.device}"
+    
+    runner.run_benchmark(model="{model}", **{kwargs})
+    sys.exit(0)
+except Exception as e:
+    logger.error(f"Error in subprocess: {str(e)}")
+    sys.exit(1)
+"""
+
+            # Run the subprocess with timeout
+            result = subprocess.run(
+                [sys.executable, "-c", script],
+                text=True,
+                env={**os.environ, 
+                     "PYTHONUNBUFFERED": "1",
+                     "LOG_TO_FILE": "0"  # Also set in parent environment
+                },
+                timeout=3600  # 1 hour timeout
+            )
+            
+            return result.returncode == 0
         
-        setup_logging(level="INFO", prefix="MAIN-PROCESS")
+        except subprocess.TimeoutExpired:
+            logger.error(f"Benchmark timed out for model {model}")
+            return False
+        except Exception as e:
+            logger.error(f"Failed to run benchmark process: {str(e)}")
+            return False
 
+    def run_benchmarks(self):
+        """Run all benchmarks sequentially with process isolation"""
         benchmarks_to_run = self.get_list_of_benchmarks_to_run()
-
-        self.logger.info(
+                
+        logger.info(
             f"Running a total of {len(benchmarks_to_run)} benchmarks, "
             f"with {len(CANONICAL_PRETRAINED_OPEN_LLM_LIST)} models"
         )
         
-
+        logger.info(f"Models that are being benchmarked: {CANONICAL_PRETRAINED_OPEN_LLM_LIST}")
+        
         rerun_already_conducted_benchmarks = os.getenv("RERUN_ALREADY_CONDUCTED_BENCHMARKS", "false") == "true"
 
-        for benchmark_name in benchmarks_to_run:
-            assert "model" in benchmark_name, "each benchmark should have a model"
-            self.run_benchmark(rerun_already_conducted_benchmarks=rerun_already_conducted_benchmarks, **benchmark_name)
+        total_benchmarks = len(benchmarks_to_run)
+        completed_benchmarks = 0
+
+        for benchmark_config in benchmarks_to_run:
+            try:
+                # Log memory before benchmark
+                logger.info("Memory usage before benchmark:")
+                log_memory_usage()
+                
+                model = benchmark_config.pop("model")  # Remove model from kwargs
+                benchmark_name = self.get_benchmark_name(model, **benchmark_config)
+                subfolder = f"{benchmark_name}/{model.replace('/', '--')}"
+                
+                if not rerun_already_conducted_benchmarks:
+                    if self.is_benchmark_conducted(self.push_repo_id, subfolder):
+                        logger.info(f"Skipping already conducted benchmark: {benchmark_name}")
+                        benchmark_config["model"] = model  # Restore model key
+                        completed_benchmarks += 1
+                        logger.info(f"Progress: {completed_benchmarks}/{total_benchmarks} benchmarks completed ({(completed_benchmarks/total_benchmarks)*100:.1f}%)")
+                        continue
+                
+                logger.info(f"Starting benchmark for model {model} with config: {benchmark_config}")
+                
+                # Run the benchmark in a separate process
+                success = self.run_single_benchmark_in_subprocess(
+                    model=model,
+                    **benchmark_config
+                )
+                
+                if not success:
+                    logger.error(f"Benchmark failed for model {model}")
+                
+                completed_benchmarks += 1
+                logger.info(f"Progress: {completed_benchmarks}/{total_benchmarks} benchmarks completed ({(completed_benchmarks/total_benchmarks)*100:.1f}%)")
+                
+                # Log memory after benchmark
+                logger.info("Memory usage after benchmark:")
+                log_memory_usage()
+                
+            except Exception as e:
+                logger.error(f"Failed to run benchmark for {model}: {str(e)}")
+                logger.error(traceback.format_exc())
+            finally:
+                # Restore model key in case the config is reused
+                benchmark_config["model"] = model
 
     def is_benchmark_conducted(self, push_repo_id, subfolder):
         try:
@@ -118,13 +206,13 @@ class LLMPerfBenchmarkManager(ABC):
         subfolder = f"{benchmark_name}/{model.replace('/', '--')}"
 
         if not self.is_benchmark_supported(**kwargs):
-            self.logger.info(
+            logger.info(
                 f"Skipping benchmark {benchmark_name} with model {model} since it is not supported"
             )
             return
 
         if not rerun_already_conducted_benchmarks and self.is_benchmark_conducted(self.push_repo_id, subfolder):
-            self.logger.info(
+            logger.info(
                 f"Skipping benchmark {benchmark_name} with model {model} since it was already conducted"
             )
             return
@@ -145,7 +233,10 @@ class LLMPerfBenchmarkManager(ABC):
         self, benchmark_config: BenchmarkConfig, subfolder: str
     ):
         try:
-            self.logger.info(
+            logger.info("Memory usage before execution:")
+            log_memory_usage()
+            
+            logger.info(
                 f"Running benchmark {benchmark_config.name} with model {benchmark_config.backend.model}"
             )
             benchmark_report = Benchmark.launch(benchmark_config)
@@ -156,8 +247,12 @@ class LLMPerfBenchmarkManager(ABC):
             benchmark.push_to_hub(
                 repo_id=self.push_repo_id, subfolder=subfolder, private=True
             )
+            
+            logger.info("Memory usage after execution:")
+            log_memory_usage()
+            
         except Exception as e:
-            self.logger.error(
+            logger.error(
                 f"Benchmark {benchmark_config.name} failed with model {benchmark_config.backend.model}, error:\n{e}"
             )
             benchmark_report = BenchmarkReport.from_dict(
