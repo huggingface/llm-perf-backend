@@ -65,9 +65,9 @@ jobs:
             --env MKL_THREADING_LAYER=GNU
             --env HF_HUB_ENABLE_HF_TRANSFER=1
             --env BENCHMARK_TOP_N
+            --env RERUN_ALREADY_CONDUCTED_BENCHMARKS
             --volume ${{ github.workspace }}:/workspace
             --workdir /workspace
-            --env RERUN_ALREADY_CONDUCTED_BENCHMARKS
           run: |
             pip install -e .
             llm-perf run-benchmark --hardware cpu --backend pytorch

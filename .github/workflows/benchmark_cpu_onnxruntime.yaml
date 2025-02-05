@@ -3,11 +3,11 @@ name: Benchmark CPU Onnxruntime
 on:
   workflow_dispatch:
     inputs:
-      skip_if_already_conducted:
-        description: 'Skip benchmarks if already conducted'
-        required: false
+      rerun_already_conducted_benchmarks:
+        description: 'Rerun benchmarks that were already conducted'
+        required: true
         type: boolean
-        default: true
+        default: false
   schedule:
     - cron: "0 12 * * 3"
   pull_request:
@@ -54,7 +54,7 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           DISABLE_WARNINGS: 1
           BENCHMARK_TOP_N: 3
-          SKIP_IF_ALREADY_CONDUCTED: ${{ github.event.inputs.skip_if_already_conducted }}
+          RERUN_ALREADY_CONDUCTED_BENCHMARKS: ${{ github.event.inputs.rerun_already_conducted_benchmarks }}
         with:
           image: ${{ env.IMAGE }}
           options: |
@@ -67,7 +67,7 @@ jobs:
             --env HF_HUB_ENABLE_HF_TRANSFER=1
             --env DISABLE_WARNINGS
             --env BENCHMARK_TOP_N
-            --env SKIP_IF_ALREADY_CONDUCTED
+            --env RERUN_ALREADY_CONDUCTED_BENCHMARKS
             --volume ${{ github.workspace }}:/workspace
             --workdir /workspace
           run: |
