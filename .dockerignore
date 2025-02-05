@@ -1,5 +1,3 @@
-optimum-benchmark
-
 **/*.pyc
 **/*.pyo
 **/*.mo
@@ -8,7 +6,7 @@ optimum-benchmark
 **/__pycache__/
 Dockerfile
 db.sqlite3
-**/*.md
+
 build
 .venv
 ruff_cache
@@ -21,3 +19,5 @@ ruff_cache
 *.rar
 *.7z
 *.iso
+
+

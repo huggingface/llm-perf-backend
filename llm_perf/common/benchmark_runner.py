@@ -95,6 +95,7 @@ class LLMPerfBenchmarkManager(ABC):
             report = BenchmarkReport.from_pretrained(
                 repo_id=push_repo_id, subfolder=subfolder
             )
+            print(report.to_dict())
             if "traceback" in report.to_dict():
                 return False
             else:

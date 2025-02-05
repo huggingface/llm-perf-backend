@@ -67,12 +67,13 @@ class CPUOpenVINOBenchmarkRunner(LLMPerfBenchmarkManager):
         backend_config = OVConfig(
             model=model,
             device="cpu",
-            device_ids="0",
             no_weights=True,
             library="transformers",
             task="text-generation",
             quantization_config=quant_config,
             model_kwargs={"trust_remote_code": True},
+            reshape=True,
+            export=True,
         )
 
         return BenchmarkConfig(

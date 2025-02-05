@@ -2,9 +2,8 @@ import pandas as pd
 
 from llm_perf.common.dependency import get_benchmark_top_n, is_debug_mode
 
-INPUT_SHAPES = {"batch_size": 1, "sequence_length": 256}
+INPUT_SHAPES = {"batch_size": 1, "sequence_length": 128}
 GENERATE_KWARGS = {"max_new_tokens": 64, "min_new_tokens": 64}
-
 
 OPEN_LLM_LEADERBOARD = pd.read_csv(
     "hf://datasets/optimum-benchmark/llm-perf-leaderboard/llm-df.csv"
@@ -52,7 +51,7 @@ def get_top_llm_list(n: int = 10) -> list[str]:
 
 
 if is_debug_mode():
-    CANONICAL_PRETRAINED_OPEN_LLM_LIST = ["bigscience/bloomz-560m"]
+    CANONICAL_PRETRAINED_OPEN_LLM_LIST = ["meta-llama/Llama-3.1-8B-Instruct"]
 else:
     CANONICAL_PRETRAINED_OPEN_LLM_LIST = get_top_llm_list(n=get_benchmark_top_n())
     print(

@@ -14,7 +14,7 @@ INSTALL_REQUIRES = [
     "huggingface_hub[hf_transfer]",
     "datasets>=2.14.6",
     "beautifulsoup4",
-    "optimum-benchmark @ git+https://github.com/huggingface/optimum-benchmark.git",
+    # "optimum-benchmark @ git+https://github.com/huggingface/optimum-benchmark.git",
 ]
 
 # Optional dependencies
@@ -25,7 +25,7 @@ EXTRAS_REQUIRE = {
         "optimum-benchmark[onnxruntime] @ git+https://github.com/huggingface/optimum-benchmark.git",
     ],
     "openvino": [
-        "optimum-benchmark[openvino] @ git+https://github.com/huggingface/optimum-benchmark.git"
+        # "optimum-benchmark[openvino] @ git+https://github.com/huggingface/optimum-benchmark.git"
     ],
     "cuda": [
         "flash-attn",
