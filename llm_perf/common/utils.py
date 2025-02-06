@@ -1,6 +1,7 @@
 import pandas as pd
 
 from llm_perf.common.dependency import get_benchmark_top_n, is_debug_mode
+from loguru import logger
 
 INPUT_SHAPES = {"batch_size": 1, "sequence_length": 256}
 GENERATE_KWARGS = {"max_new_tokens": 64, "min_new_tokens": 64}
@@ -47,7 +48,7 @@ def get_top_llm_list(n: int = 10) -> list[str]:
 
         return top_models
     except Exception as e:
-        print(f"Error fetching top LLM list: {e}")
+        logger.error(f"Error fetching top LLM list: {e}")
         return []
 
 
@@ -55,6 +56,3 @@ if is_debug_mode():
     CANONICAL_PRETRAINED_OPEN_LLM_LIST = ["bigscience/bloomz-560m"]
 else:
     CANONICAL_PRETRAINED_OPEN_LLM_LIST = get_top_llm_list(n=get_benchmark_top_n())
-    print(
-        f"Benchamrking the following {len(CANONICAL_PRETRAINED_OPEN_LLM_LIST)} models: {CANONICAL_PRETRAINED_OPEN_LLM_LIST}"
-    )

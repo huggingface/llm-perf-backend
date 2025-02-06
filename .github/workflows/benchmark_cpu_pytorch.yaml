@@ -2,6 +2,12 @@ name: Benchmark CPU PyTorch
 
 on:
   workflow_dispatch:
+    inputs:
+      rerun_already_conducted_benchmarks:
+        description: 'Rerun benchmarks that were already conducted'
+        required: true
+        type: boolean
+        default: false
   schedule:
     - cron: "0 0 * * *"
   pull_request:
@@ -16,15 +22,18 @@ env:
 jobs:
   run_benchmarks:
     if: >-
-      (github.event_name == 'push' && contains(github.event.head_commit.message, 'cpu_pytorch')) ||
-      (github.event_name == 'push' && contains(github.event.head_commit.message, 'all_benchmarks')) ||
+      (github.event_name == 'push' && (
+        contains(github.event.head_commit.message, 'cpu_pytorch') ||
+        contains(github.event.head_commit.message, 'all_benchmarks')
+      )) ||
       (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'pull_request' && (
         contains(github.event.pull_request.labels.*.name, 'leaderboard') ||
         contains(github.event.pull_request.labels.*.name, 'cpu') ||
         contains(github.event.pull_request.labels.*.name, 'pytorch') ||
-        contains(github.event.pull_request.labels.*.name, 'cpu_pytorch')
+        contains(github.event.pull_request.labels.*.name, 'cpu_pytorch') ||
+        contains(github.event.pull_request.labels.*.name, 'all_benchmarks')
       ))
 
     strategy:
@@ -47,6 +56,7 @@ jobs:
           MACHINE: ${{ matrix.machine.name }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           BENCHMARK_TOP_N: 50
+          RERUN_ALREADY_CONDUCTED_BENCHMARKS: ${{ github.event.inputs.rerun_already_conducted_benchmarks }}
         with:
           image: ${{ env.IMAGE }}
           options: |
@@ -58,6 +68,7 @@ jobs:
             --env MKL_THREADING_LAYER=GNU
             --env HF_HUB_ENABLE_HF_TRANSFER=1
             --env BENCHMARK_TOP_N
+            --env RERUN_ALREADY_CONDUCTED_BENCHMARKS
             --volume ${{ github.workspace }}:/workspace
             --workdir /workspace
           run: |

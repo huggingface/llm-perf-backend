@@ -8,9 +8,9 @@ from optimum_benchmark import Benchmark
 import json
 
 from llm_perf.common.hardware_config import load_hardware_configs
-from huggingface_hub.utils import disable_progress_bars
+from loguru import logger
 
-disable_progress_bars()
+os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
 
 REPO_TYPE = "dataset"
 MAIN_REPO_ID = "optimum-benchmark/llm-perf-leaderboard"
@@ -93,7 +93,7 @@ def gather_benchmarks(subset: str, machine: str, backend: str, hardware: str):
         path_in_repo=perf_df,
         path_or_fileobj=perf_df,
     )
-    print(f"Uploaded {perf_df} to {MAIN_REPO_ID}")
+    logger.info(f"Uploaded {perf_df} to {MAIN_REPO_ID}")
 
 
 # def check_if_url_exists(url: str):
@@ -101,7 +101,7 @@ def gather_benchmarks(subset: str, machine: str, backend: str, hardware: str):
 #     Check if a URL exists
 #     """
 #     repo_exists
-#     print(f"response: {response}")
+#     logger.info(f"response: {response}")
 #     return response.status_code == 200
 
 
@@ -123,31 +123,33 @@ def update_perf_dfs():
                         hardware_config.hardware,
                     )
                 except Exception:
-                    print("Dataset not found for:")
-                    print(f"  • Backend: {backend}")
-                    print(f"  • Subset: {subset}")
-                    print(f"  • Machine: {hardware_config.machine}")
-                    print(f"  • Hardware Type: {hardware_config.hardware}")
+                    logger.error("Dataset not found for:")
+                    logger.error(f"  • Backend: {backend}")
+                    logger.error(f"  • Subset: {subset}")
+                    logger.error(f"  • Machine: {hardware_config.machine}")
+                    logger.error(f"  • Hardware Type: {hardware_config.hardware}")
                     url = f"{PERF_REPO_ID.format(subset=subset, machine=hardware_config.machine, backend=backend, hardware=hardware_config.hardware)}"
 
                     does_exist = repo_exists(url, repo_type="dataset")
 
                     if does_exist:
-                        print(f"Dataset exists: {url} but could not be processed")
+                        logger.error(
+                            f"Dataset exists: {url} but could not be processed"
+                        )
 
 
 def update_llm_df():
     """
     Scrape the open-llm-leaderboard and update the leaderboard dataframe
     """
-    
+
     scrapping_script = """
     git clone https://github.com/Weyaxi/scrape-open-llm-leaderboard.git
     pip install -r scrape-open-llm-leaderboard/requirements.txt -q
     python scrape-open-llm-leaderboard/main.py
     rm -rf scrape-open-llm-leaderboard
     """
-    
+
     subprocess.run(scrapping_script, shell=True)
     create_repo(repo_id=MAIN_REPO_ID, repo_type=REPO_TYPE, exist_ok=True, private=False)
     upload_file(

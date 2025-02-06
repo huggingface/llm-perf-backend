@@ -2,8 +2,10 @@ FROM ghcr.io/huggingface/optimum-benchmark:latest-cpu
 
 WORKDIR /workspace
 
-COPY . .
+COPY setup.py .
 
 RUN pip install -e .
 
-CMD ["llm-perf", "run-benchmark", "--hardware", "cpu", "--backend", "pytorch"]
+COPY . .
+
+ENTRYPOINT ["llm-perf", "run-benchmark", "--hardware", "cpu", "--backend", "pytorch"]

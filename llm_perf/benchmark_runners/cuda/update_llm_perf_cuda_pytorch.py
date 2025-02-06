@@ -19,9 +19,9 @@ class CUDAPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
         super().__init__(backend="pytorch", device="cuda")
 
         self.attention_configs = self._get_attention_configs()
-        assert (
-            self.subset is not None
-        ), "SUBSET environment variable must be set for benchmarking"
+        assert self.subset is not None, (
+            "SUBSET environment variable must be set for benchmarking"
+        )
         self.weights_configs = self._get_weights_configs(self.subset)
 
     def get_list_of_benchmarks_to_run(self) -> List[Dict[str, Any]]:
@@ -55,9 +55,9 @@ class CUDAPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
         weights_config = kwargs["weights_config"]
         attn_implementation = kwargs["attn_implementation"]
 
-        assert (
-            weights_config in self.weights_configs
-        ), f"your config does contains the {weights_config}, adjust your _get_weights_configs to fix this issue"
+        assert weights_config in self.weights_configs, (
+            f"your config does contains the {weights_config}, adjust your _get_weights_configs to fix this issue"
+        )
 
         torch_dtype = self.weights_configs[weights_config]["torch_dtype"]
         quant_scheme = self.weights_configs[weights_config]["quant_scheme"]
@@ -206,7 +206,7 @@ class CUDAPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
             raise ValueError(f"Unknown subset: {subset}")
 
     def _get_attention_configs(self) -> List[str]:
-        return ["eager", "sdpa", "flash_attention_2"]
+        return ["eager", "sdpa"]
 
 
 if __name__ == "__main__":
