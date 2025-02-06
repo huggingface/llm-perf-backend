@@ -23,8 +23,7 @@ LLM-perf Backend is designed to:
 
 ## Installation 🛠️
 
-1. Clone the repository:
-```bash
+1. Clone the repository:```bash
 git clone https://github.com/huggingface/llm-perf-backend
 cd llm-perf-backend
 ```
@@ -53,7 +52,6 @@ llm-perf run-benchmark --hardware cpu --backend pytorch
 ```
 
 ### Configuration Options
-
 View all the options with
 ```bash
 llm-perf run-benchmark --help
@@ -61,6 +59,18 @@ llm-perf run-benchmark --help
 
 - `--hardware`: Target hardware platform (cpu, cuda)
 - `--backend`: Backend framework to use (pytorch, onnxruntime, etc.)
+
+### (Optional) Running Benchmarks via Docker
+
+You can run the benchmarks using the following make commands:
+
+```bash
+# CPU Benchmarks
+make run-llm-perf-benchmark-cpu-pytorch     # Run PyTorch CPU benchmark
+make run-llm-perf-benchmark-cpu-openvino    # Run OpenVINO CPU benchmark
+
+# GPU Benchmarks
+make run-llm-perf-benchmark-cuda-pytorch    # Run PyTorch CUDA benchmark
 
 ## Benchmark Dataset 📊
 

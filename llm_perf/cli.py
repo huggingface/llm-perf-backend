@@ -19,6 +19,7 @@ from llm_perf.benchmark_runners.cuda.update_llm_perf_cuda_pytorch import (
 )
 
 from llm_perf.update_llm_perf_leaderboard import update_llm_perf_leaderboard
+
 from loguru import logger
 
 if os.environ.get("DISABLE_WARNINGS", "0") == "1":
@@ -73,6 +74,20 @@ def run_benchmark(
 @app.command()
 def update_leaderboard():
     update_llm_perf_leaderboard()
+
+
+@app.command()
+def launch_dashboard(
+    port: int = typer.Option(7860, help="Port to run the dashboard on"),
+    share: bool = typer.Option(False, help="Whether to create a public URL")
+):
+    """Launch the LLM Performance Dashboard."""
+    from llm_perf.dashboard_app import DashboardApp
+    
+    logger.info(f"Starting dashboard on port {port}")
+    
+    app = DashboardApp()
+    app.launch()
 
 
 if __name__ == "__main__":

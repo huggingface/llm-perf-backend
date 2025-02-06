@@ -206,7 +206,7 @@ class CUDAPyTorchBenchmarkRunner(LLMPerfBenchmarkManager):
             raise ValueError(f"Unknown subset: {subset}")
 
     def _get_attention_configs(self) -> List[str]:
-        return ["eager", "sdpa", "flash_attention_2"]
+        return ["eager", "sdpa"]
 
 
 if __name__ == "__main__":
