@@ -30,7 +30,8 @@ jobs:
         contains(github.event.pull_request.labels.*.name, 'leaderboard') ||
         contains(github.event.pull_request.labels.*.name, 'cuda') ||
         contains(github.event.pull_request.labels.*.name, 'pytorch') ||
-        contains(github.event.pull_request.labels.*.name, 'cuda_pytorch')
+        contains(github.event.pull_request.labels.*.name, 'cuda_pytorch') ||
+        contains(github.event.pull_request.labels.*.name, 'all_benchmarks') ||
       ))
 
     strategy:
