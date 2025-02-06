@@ -8,7 +8,6 @@ from optimum_benchmark import Benchmark
 import json
 
 from llm_perf.common.hardware_config import load_hardware_configs
-import os
 from loguru import logger
 
 os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
@@ -134,21 +133,23 @@ def update_perf_dfs():
                     does_exist = repo_exists(url, repo_type="dataset")
 
                     if does_exist:
-                        logger.error(f"Dataset exists: {url} but could not be processed")
+                        logger.error(
+                            f"Dataset exists: {url} but could not be processed"
+                        )
 
 
 def update_llm_df():
     """
     Scrape the open-llm-leaderboard and update the leaderboard dataframe
     """
-    
+
     scrapping_script = """
     git clone https://github.com/Weyaxi/scrape-open-llm-leaderboard.git
     pip install -r scrape-open-llm-leaderboard/requirements.txt -q
     python scrape-open-llm-leaderboard/main.py
     rm -rf scrape-open-llm-leaderboard
     """
-    
+
     subprocess.run(scrapping_script, shell=True)
     create_repo(repo_id=MAIN_REPO_ID, repo_type=REPO_TYPE, exist_ok=True, private=False)
     upload_file(

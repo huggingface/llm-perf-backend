@@ -1,6 +1,7 @@
 import pandas as pd
 
 from llm_perf.common.dependency import get_benchmark_top_n, is_debug_mode
+from loguru import logger
 
 INPUT_SHAPES = {"batch_size": 1, "sequence_length": 256}
 GENERATE_KWARGS = {"max_new_tokens": 64, "min_new_tokens": 64}

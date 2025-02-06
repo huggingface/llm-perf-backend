@@ -24,7 +24,7 @@ from loguru import logger
 
 if os.environ.get("DISABLE_WARNINGS", "0") == "1":
     warnings.filterwarnings("ignore")
-    
+
 os.environ["CI"] = "GITHUB_ACTIONS"
 
 app = typer.Typer()
@@ -79,13 +79,13 @@ def update_leaderboard():
 @app.command()
 def launch_dashboard(
     port: int = typer.Option(7860, help="Port to run the dashboard on"),
-    share: bool = typer.Option(False, help="Whether to create a public URL")
+    share: bool = typer.Option(False, help="Whether to create a public URL"),
 ):
     """Launch the LLM Performance Dashboard."""
     from llm_perf.dashboard_app import DashboardApp
-    
+
     logger.info(f"Starting dashboard on port {port}")
-    
+
     app = DashboardApp()
     app.launch()
 

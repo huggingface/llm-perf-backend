@@ -17,7 +17,7 @@ INSTALL_REQUIRES = [
     "loguru",
     "optimum-benchmark @ git+https://github.com/huggingface/optimum-benchmark.git",
     "psutil",
-    "torch<2.6.0"
+    "torch<2.6.0",
 ]
 
 # Optional dependencies
