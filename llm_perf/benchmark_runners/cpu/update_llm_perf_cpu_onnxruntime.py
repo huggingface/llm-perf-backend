@@ -19,9 +19,9 @@ class CPUOnnxRuntimeBenchmarkRunner(LLMPerfBenchmarkManager):
         super().__init__(backend="onnxruntime", device="cpu")
 
         self.attention_configs = self._get_attention_configs()
-        assert (
-            self.subset is not None
-        ), "SUBSET environment variable must be set for benchmarking"
+        assert self.subset is not None, (
+            "SUBSET environment variable must be set for benchmarking"
+        )
         self.weights_configs = self._get_weights_configs(self.subset)
 
     def get_list_of_benchmarks_to_run(self) -> List[Dict[str, Any]]:
@@ -47,9 +47,9 @@ class CPUOnnxRuntimeBenchmarkRunner(LLMPerfBenchmarkManager):
         weights_config = kwargs["weights_config"]
         attn_implementation = kwargs["attn_implementation"]
 
-        assert (
-            weights_config in self.weights_configs
-        ), f"your config does not contain {weights_config}, adjust your _get_weights_configs to fix this issue"
+        assert weights_config in self.weights_configs, (
+            f"your config does not contain {weights_config}, adjust your _get_weights_configs to fix this issue"
+        )
 
         torch_dtype = self.weights_configs[weights_config]["torch_dtype"]
         quant_config = self.weights_configs[weights_config]["quant_config"]

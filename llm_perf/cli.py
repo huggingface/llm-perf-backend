@@ -20,8 +20,12 @@ from llm_perf.benchmark_runners.cuda.update_llm_perf_cuda_pytorch import (
 
 from llm_perf.update_llm_perf_leaderboard import update_llm_perf_leaderboard
 
+from loguru import logger
+
 if os.environ.get("DISABLE_WARNINGS", "0") == "1":
     warnings.filterwarnings("ignore")
+
+os.environ["CI"] = "GITHUB_ACTIONS"
 
 app = typer.Typer()
 
@@ -46,9 +50,9 @@ def run_benchmark(
 ):
     env_vars = load_dotenv()
     if env_vars:
-        print("Environment variables loaded successfully")
+        logger.info("Environment variables loaded successfully")
     else:
-        print("No environment variables loaded")
+        logger.info("No environment variables loaded")
 
     if hardware == Hardware.CPU:
         if backend == Backend.ONNXRUNTIME:
@@ -61,7 +65,7 @@ def run_benchmark(
         if backend == Backend.PYTORCH:
             runner = CUDAPyTorchBenchmarkRunner()
         else:
-            typer.echo(f"CUDA is not supported for {backend} backend")
+            logger.error(f"CUDA is not supported for {backend} backend")
             raise typer.Exit(code=1)
 
     runner.run_benchmarks()
@@ -70,6 +74,20 @@ def run_benchmark(
 @app.command()
 def update_leaderboard():
     update_llm_perf_leaderboard()
+
+
+@app.command()
+def launch_dashboard(
+    port: int = typer.Option(7860, help="Port to run the dashboard on"),
+    share: bool = typer.Option(False, help="Whether to create a public URL"),
+):
+    """Launch the LLM Performance Dashboard."""
+    from llm_perf.dashboard_app import DashboardApp
+
+    logger.info(f"Starting dashboard on port {port}")
+
+    app = DashboardApp()
+    app.launch()
 
 
 if __name__ == "__main__":

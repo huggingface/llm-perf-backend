@@ -191,3 +191,4 @@ optimum-benchmark/
 
 *.egg-info/
 data/
+load_model_codecarbon.json
