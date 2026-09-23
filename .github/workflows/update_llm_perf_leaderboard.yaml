@@ -13,8 +13,12 @@ concurrency:
   cancel-in-progress: true
   group: ${{ github.workflow }}-${{ github.ref }}
 
+permissions: {}
+
 jobs:
   update_llm_perf_leaderboard:
+    permissions:
+      contents: read
     if: ${{
       (github.event_name == 'push') ||
       (github.event_name == 'workflow_dispatch') ||
